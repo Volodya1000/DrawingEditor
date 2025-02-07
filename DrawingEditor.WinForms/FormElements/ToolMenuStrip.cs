@@ -3,9 +3,6 @@
 using System;
 using System.Windows.Forms;
 
-using System;
-using System.Windows.Forms;
-
 public class ToolMenuStrip : MenuStrip
 {
     public event EventHandler<ToolStripMenuItem> ItemSelected;
