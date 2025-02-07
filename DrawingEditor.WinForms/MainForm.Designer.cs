@@ -28,20 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            gridCheckBox = new CheckBox();
             SuspendLayout();
-            
+            // 
+            // gridCheckBox
+            // 
+            gridCheckBox.AutoSize = true;
+            gridCheckBox.Location = new Point(647, 12);
+            gridCheckBox.Name = "gridCheckBox";
+            gridCheckBox.Size = new Size(101, 24);
+            gridCheckBox.TabIndex = 0;
+            gridCheckBox.Text = "checkBox1";
+            gridCheckBox.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(gridCheckBox);
             Name = "MainForm";
             Text = "Form1";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
+
+        private CheckBox gridCheckBox;
     }
 }

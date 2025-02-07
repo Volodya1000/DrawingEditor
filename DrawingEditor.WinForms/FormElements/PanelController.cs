@@ -15,6 +15,7 @@ public class PanelController
     private Point previousMousePosition;
     private const float MinScale = 0.2f;
     private const float MaxScale = 10.0f;
+    public bool GridEnable { get; set; } = false;
 
     public PanelController(BufferedPanel panel, int gridWidth, int gridHeight, int cellSize)
     {
@@ -112,7 +113,10 @@ public class PanelController
         graphics.Clear(Color.White);
         graphics.Transform = GetTransformationMatrix();
 
-        DrawGrid(graphics);
+        if(GridEnable)
+            DrawGrid(graphics);
+
+
         DrawPoints(graphics);
 
         graphics.ResetTransform();

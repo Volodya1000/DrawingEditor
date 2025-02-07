@@ -1,5 +1,4 @@
 using DrawingEditor.Core;
-using System.Windows.Forms;
 
 namespace DrawingEditor.WinForms
 {
@@ -10,6 +9,7 @@ namespace DrawingEditor.WinForms
         private BufferedPanel bufferedPanel;
         private ToolMenuStrip toolMenuStrip;
         private Label selectedToolLabel;
+        //private CheckBox gridCheckBox;
         //-----
         
         private GraphicsEditorFacade _graphicsEditorFacade;
@@ -21,8 +21,8 @@ namespace DrawingEditor.WinForms
             // Добавление панели инструментов 
             toolMenuStrip = new ToolMenuStrip();
             toolMenuStrip.ItemSelected += (sender, item) => UpdateLabelFromMenuSelection(item);
-            this.MainMenuStrip = toolMenuStrip;
-            this.Controls.Add(toolMenuStrip);
+            MainMenuStrip = toolMenuStrip;
+            Controls.Add(toolMenuStrip);
 
             // Создаем и настраиваем Label
             selectedToolLabel = new Label
@@ -39,8 +39,8 @@ namespace DrawingEditor.WinForms
 
 
             //Панель
-            bufferedPanel = new BufferedPanel 
-            {   Dock = DockStyle.Fill,
+            bufferedPanel = new BufferedPanel
+            { Dock = DockStyle.Fill,
                 Top = selectedToolLabel.Height,
                 Left = 0,
                 Height = (int)(this.Height * 0.9),
@@ -52,6 +52,30 @@ namespace DrawingEditor.WinForms
             selectedToolLabel.BringToFront();
 
             panelController = new PanelController(bufferedPanel, 1000, 1000, 7);
+
+
+
+            //Чек бокс сетки
+            //gridCheckBox = new CheckBox()
+            //{
+            //    Top = toolMenuStrip.Height,
+            //    Left = selectedToolLabel.Width,
+            //};
+            gridCheckBox.Top = toolMenuStrip.Height;
+            gridCheckBox.Left = this.Width- gridCheckBox.Width;
+            gridCheckBox.Text = "Сетка";
+            gridCheckBox.BringToFront();
+            gridCheckBox.Checked = false;
+            gridCheckBox.CheckedChanged += gridCheckBox_CheckedChanged;
+            //Controls.Add(gridCheckBox);
+
+
+        }
+
+        private void gridCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            panelController.GridEnable=!panelController.GridEnable;
+            bufferedPanel.Invalidate();
         }
 
 
@@ -70,7 +94,7 @@ namespace DrawingEditor.WinForms
             ToolStripItem parent = item.OwnerItem;
             while (parent != null && parent is ToolStripMenuItem)
             {
-                path = $"{parent.Text} > {path}";
+                path = $"{parent.Text} > \n{path}";
                 parent = parent.OwnerItem;
             }
             return path;
