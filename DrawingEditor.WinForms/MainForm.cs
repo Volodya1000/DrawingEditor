@@ -9,8 +9,12 @@ public partial class MainForm : Form
     private ToolMenuStrip toolMenuStrip;
     private Label selectedToolLabel;
     private CheckBox gridCheckBox;
+    private ToolTreeView toolTreeView;
+
 
     private GraphicsEditorFacade _graphicsEditorFacade;
+
+
 
     public MainForm()
     {
@@ -39,11 +43,11 @@ public partial class MainForm : Form
         {
             AutoSize = false,
             Width = toolPanel.Width - 10,
-            Height = 60, // Увеличена высота
-            Font = new Font(Font.FontFamily, 10), // Уменьшен шрифт
+            Height = 60,
+            Font = new Font(Font.FontFamily, 10),
             Text = "Инструмент: Нет",
             TextAlign = ContentAlignment.MiddleLeft,
-            AutoEllipsis = true // Многоточие для длинных текстов
+            AutoEllipsis = true 
         };
 
         toolPanel.Controls.Add(selectedToolLabel);
@@ -56,6 +60,18 @@ public partial class MainForm : Form
         };
         gridCheckBox.CheckedChanged += gridCheckBox_CheckedChanged;
         toolPanel.Controls.Add(gridCheckBox);
+
+
+        toolTreeView = new ToolTreeView()
+        {
+            Width = toolPanel.Width - 10,
+            Height = 700,
+            BorderStyle = BorderStyle.FixedSingle
+        }; 
+        toolTreeView.ExpandAll(); // Открыть все узлы
+        toolTreeView.Height = toolTreeView.CalculateTreeViewHeight() + 4;
+        toolTreeView.AfterSelect += (sender, e) => UpdateLabelFromTreeSelection(e.Node);
+        toolPanel.Controls.Add(toolTreeView);
 
         // Добавляем панель инструментов на форму
         Controls.Add(toolPanel);
@@ -72,6 +88,28 @@ public partial class MainForm : Form
 
         // Убедитесь, что элементы не перекрываются
         toolPanel.BringToFront();
+    }
+
+
+    private void UpdateLabelFromTreeSelection(TreeNode selectedNode)
+    {
+        if (selectedNode == null)
+            return;
+
+        string path = GetNodePath(selectedNode);
+        selectedToolLabel.Text = $"Инструмент: {path}";
+    }
+
+    private string GetNodePath(TreeNode node)
+    {
+        string path = node.Text;
+        TreeNode parent = node.Parent;
+        while (parent != null)
+        {
+            path = $"{parent.Text} > {path}";
+            parent = parent.Parent;
+        }
+        return path;
     }
 
     private void gridCheckBox_CheckedChanged(object sender, EventArgs e)
