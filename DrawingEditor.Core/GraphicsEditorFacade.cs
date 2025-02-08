@@ -1,117 +1,85 @@
-﻿using DrawingEditor.Core.Algorithms.SegmentAlgorithms.Interfaces;
-using DrawingEditor.Core;
-using DrawingEditor.Core.Models;
-using System.Drawing;
+﻿using System.Drawing;
 using DrawingEditor.Core.Models.Interfaces;
 using DrawingEditor.Core.Algorithms.LineAlgorithms;
+using DrawingEditor.Core.GraphickObjectsCreators;
 
 namespace DrawingEditor.Core;
 
 
-//public class GraphicsEditorFacade : IDrwaingGraphicObject
-//{
-//    private readonly CanvasModel _canvasModel;
-//    private readonly LineDrawer _lineDrawer;
-//    private float _scale = 1.0f; // Масштаб по умолчанию
-
-//    public GraphicsEditorFacade(CanvasModel canvasModel, ILineDrawingAlgorithm initialAlgorithm = null)
-//    {
-//        _canvasModel = canvasModel;
-//        _lineDrawer = new LineDrawer(initialAlgorithm ?? new DDAAlgorithm());
-//    }
-
-//    // Метод для изменения масштаба
-//    public void SetScale(float scale)
-//    {
-//        _scale = scale;
-//    }
-
-//    // Получить текущий масштаб
-//    public float GetScale()
-//    {
-//        return _scale;
-//    }
-
-//    public void SetSegmentAlgorithm(ILineDrawingAlgorithm algorithm)
-//    {
-//        _lineDrawer.SetAlgorithm(algorithm);
-//    }
-
-//    // Масштабирование координат при добавлении линии
-//    public void AddLine(Point start, Point end)
-//    {
-//        var scaledStart = new Point((int)(start.X * _scale), (int)(start.Y * _scale));
-//        var scaledEnd = new Point((int)(end.X * _scale), (int)(end.Y * _scale));
-
-//        var segment = _lineDrawer.DrawLine(scaledStart, scaledEnd);
-//        _canvasModel.AddObject(segment);
-//    }
-
-//    // Получение точек с учетом масштаба
-//    public IEnumerable<Point> GetPoints()
-//    {
-//        var points = _canvasModel.GetPoints();
-//        foreach (var point in points)
-//        {
-//            // Масштабируем точки перед возвратом
-//            yield return new Point((int)(point.X * _scale), (int)(point.Y * _scale));
-//        }
-//    }
-//}
-
-
-
-public class GraphicsEditorFacade : IDrwaingGraphicObject
+public class GraphicsEditorFacade : IInputHandler
 {
-    //private readonly CanvasModel _canvasModel;
-    //private readonly LineDrawer _lineDrawer;
+    private ICreationState currentState;
+    private IGraphicObjectCreator currentCreator;
 
-    private readonly List<IDrwaingGraphicObject> _DrwaingGraphicObject = new();
+    private readonly CanvasModel canvasModel;
 
+    private IDrwaingGraphicObject? previewGraphicObject;
 
-
-    private Func<Point, Point, IEnumerable<Point>> _currentLineAlgorithm;
-
-    public GraphicsEditorFacade(Func<Point, Point, IEnumerable<Point>> initialAlgorithm=null)
+    public GraphicsEditorFacade(IGraphicObjectCreator initialCreator=null)
     {
-        _currentLineAlgorithm = initialAlgorithm ?? LineDrawingAlgorithms.CDADraw;
+        if (initialCreator == null)
+            initialCreator = new LineCreator(LineDrawingAlgorithms.CDADraw);
+        SetCreator(initialCreator);
+
+        canvasModel = new CanvasModel();
     }
 
-    // Метод для добавления линии
-    public void AddLine(Point start, Point end)
+    public void SetCreator(IGraphicObjectCreator creator)
     {
-        var line = new Line(start, end, _currentLineAlgorithm);
-        _DrwaingGraphicObject.Add(line);
+        currentCreator = creator;
+        currentState = new CreationState(currentCreator.GetRequiredPointsCount());
     }
 
-    // Возвращает все точки всех линий
+    public void HandlePoint(Point point)
+    {
+        currentState.AddPoint(point);
+
+        if (currentState.IsReadyToCreate())
+        {
+            AddGraphicObject();
+            currentState = new CreationState(currentCreator.GetRequiredPointsCount());
+        }
+    }
+
+    public void HandleMouseMove(Point point)
+    {
+        // Удаляем старый предпросматриваемый объект
+        previewGraphicObject = null;
+
+        // Если уже есть одна точка — создаем новый предпросмотр
+        var currentPoints = currentState.GetPoints().ToList();
+        if (currentPoints.Count > 0)
+        {
+            var previewPoints = new List<Point>(currentPoints) { point };
+            previewGraphicObject = currentCreator.CreateGraphicObject(previewPoints);
+        }
+    }
+
+    private void AddGraphicObject()
+    {
+        var graphicObject = currentCreator.CreateGraphicObject(currentState.GetPoints());
+        if (graphicObject != null)
+        {
+            canvasModel.AddObject(graphicObject);
+        }
+    }
+
     public IEnumerable<Point> GetPoints()
     {
-        return _DrwaingGraphicObject.SelectMany(line => line.GetPoints());
+        return canvasModel.GetPoints();
     }
 
-    // Позволяет сменить алгоритм для добавления новых линий
-    public void SetLineAlgorithm(Func<Point, Point, IEnumerable<Point>> newAlgorithm)
+    public IEnumerable<Point> GetPreviewPoints()
     {
-        _currentLineAlgorithm = newAlgorithm ?? throw new ArgumentNullException(nameof(newAlgorithm));
+        return previewGraphicObject?.GetPoints() ?? Enumerable.Empty<Point>();
     }
+}
 
-    //public GraphicsEditorFacade(CanvasModel canvasModel, ILineDrawingAlgorithm initialAlgorithm = null)
-    //{
-    //    _canvasModel = canvasModel;
-    //    _lineDrawer = new LineDrawer(initialAlgorithm ?? new DDAAlgorithm());
-    //}
 
-    //public void SetSegmentAlgorithm(ILineDrawingAlgorithm algorithm)
-    //{
-    //    _lineDrawer.SetAlgorithm(algorithm);
-    //}
-
-    //public void AddLine(Point start, Point end)
-    //{
-    //    var segment = _lineDrawer.DrawLine(start, end);
-    //    _canvasModel.AddObject(segment);
-    //}
-
-    //public IEnumerable<Point> GetPoints() => _canvasModel.GetPoints();
+public class GraphicPoint(Point point) : IDrwaingGraphicObject
+{
+    public IEnumerable<Point> GetPoints()
+    {
+        return new List<Point>() { point };
+    }
 }

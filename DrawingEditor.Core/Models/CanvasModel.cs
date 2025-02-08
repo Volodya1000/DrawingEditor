@@ -1,17 +1,55 @@
-﻿using DrawingEditor.Core.Models.Interfaces;
+﻿using DrawingEditor.Core.History;
+using DrawingEditor.Core.Models.Interfaces;
 using System.Drawing;
 
 namespace DrawingEditor.Core;
 
-public class CanvasModel: IDrwaingGraphicObject
+public class CanvasModel
 {
-    private  readonly List<IDrwaingGraphicObject> _objects = new ();
+    private DrawingState currentState { get; set; }
 
-    public void AddObject(IDrwaingGraphicObject obj) => _objects.Add(obj);
+    private DrawingHistory history = new DrawingHistory();
 
-    public void RemoveObject(IDrwaingGraphicObject obj) => _objects.Remove(obj);
+    public CanvasModel()
+    {
+        currentState = new DrawingState(new List<IDrwaingGraphicObject>());
+    }
 
-    public IEnumerable<IDrwaingGraphicObject> GetObjects() => _objects;
 
-    public IEnumerable<Point> GetPoints() => _objects.SelectMany(x => x.GetPoints());
+    public void AddObject(IDrwaingGraphicObject obj)
+    {
+        List<IDrwaingGraphicObject> newObjects = new List<IDrwaingGraphicObject>(currentState.GraphicObjects);
+        newObjects.Add(obj);
+        SetState(new DrawingState(newObjects));
+    }
+
+    public void RemoveObject(IDrwaingGraphicObject obj) => currentState.GraphicObjects.Remove(obj);
+
+
+    public IEnumerable<Point> GetPoints() => currentState.GraphicObjects.SelectMany(x => x.GetPoints());
+
+
+    #region WorkWithState
+
+    private void SetState(DrawingState newState)
+        {
+            SaveState(); // Сохраняем текущее состояние перед изменением
+            currentState = newState;
+        }
+
+        private void SaveState()
+        {
+            // Создаем копию текущего состояния и сохраняем в истории
+            history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
+        }
+
+        public void Undo()
+        {
+            DrawingState previousState = history.Undo();
+            if (previousState != null)
+            {
+                currentState = previousState;
+            }
+        }
+    #endregion
 }
