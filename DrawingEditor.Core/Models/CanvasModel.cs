@@ -29,6 +29,8 @@ public class CanvasModel
     public IEnumerable<Point> GetPoints() => currentState.GraphicObjects.SelectMany(x => x.GetPoints());
 
 
+    public IEnumerable<IDrwaingGraphicObject> GetGraphicObjects() => currentState.GraphicObjects;
+
     #region WorkWithState
 
     private void SetState(DrawingState newState)
@@ -43,13 +45,16 @@ public class CanvasModel
             history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
         }
 
-        public void Undo()
+        public bool Undo()
         {
             DrawingState previousState = history.Undo();
             if (previousState != null)
             {
                 currentState = previousState;
+                return true;
             }
+            else
+                return false;
         }
     #endregion
 }

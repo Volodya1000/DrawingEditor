@@ -14,9 +14,9 @@ public class LineCreator : IGraphicObjectCreator
 
     public int GetRequiredPointsCount() => 2;
 
-    public IDrwaingGraphicObject? CreateGraphicObject(IEnumerable<Point> points)
+    public IDrwaingGraphicObject? CreateGraphicObject(Color color,IEnumerable<Point> points)
     {
         var pointList = points.ToList();
-        return pointList.Count >= 2 ? new Line(pointList[0], pointList[1], _lineAlgorithm) : null;
+        return pointList.Count >= 2 ? new Line(color,pointList[0], pointList[1], _lineAlgorithm) : null;
     }
 }

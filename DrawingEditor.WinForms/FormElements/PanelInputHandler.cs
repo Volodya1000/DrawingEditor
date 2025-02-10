@@ -21,13 +21,11 @@ public class PanelInputHandler
     private const float MinScale = 0.2f;
     private const float MaxScale = 10.0f;
 
-    private readonly IInputHandler inputHandler;
 
 
-    public PanelInputHandler(BufferedPanel panel, IInputHandler inputHandler, int gridWidth, int gridHeight ,int cellSize,int pointsQueueSize = 5)
+    public PanelInputHandler(BufferedPanel panel, int gridWidth, int gridHeight ,int cellSize,int pointsQueueSize = 5)
     {
         this.panel = panel;
-        this.inputHandler = inputHandler;
         this.PointsQueueSize = pointsQueueSize;
         this.cellSize = cellSize;
         this.gridWidth = gridWidth;
@@ -78,7 +76,7 @@ public class PanelInputHandler
         bool pointIsInGrid = gridPoint.X >= 0 && gridPoint.X < gridWidth && gridPoint.Y >= 0 && gridPoint.Y < gridHeight;
         if (!pointIsInGrid) return;
 
-        inputHandler.HandlePoint(gridPoint);
+        GraphicsEditorFacade.GetInstance().HandlePoint(CurentDrawingSettings.GetInstance().SelectedColor,gridPoint);
         panel.Invalidate();
     }
 
@@ -89,7 +87,7 @@ public class PanelInputHandler
         else
         {
             Point gridPoint = ConvertToGridCoordinates(e.Location);
-            inputHandler.HandleMouseMove(gridPoint);
+            GraphicsEditorFacade.GetInstance().HandleMouseMove(CurentDrawingSettings.GetInstance().SelectedColor, gridPoint);
             panel.Invalidate();
         }
     }

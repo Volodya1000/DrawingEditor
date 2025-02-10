@@ -5,23 +5,32 @@ using DrawingEditor.Core.GraphickObjectsCreators;
 
 namespace DrawingEditor.Core;
 
-
-public class GraphicsEditorFacade : IInputHandler
+// <<Singleton>> <<Facade>>
+public class GraphicsEditorFacade //: IInputHandler
 {
+    private static GraphicsEditorFacade instance;
+
+
     private ICreationState currentState;
     private IGraphicObjectCreator currentCreator;
 
-    private readonly CanvasModel canvasModel;
+    private CanvasModel canvasModel;
 
     private IDrwaingGraphicObject? previewGraphicObject;
 
-    public GraphicsEditorFacade(IGraphicObjectCreator initialCreator=null)
-    {
-        if (initialCreator == null)
-            initialCreator = new LineCreator(LineDrawingAlgorithms.CDADraw);
-        SetCreator(initialCreator);
+    private GraphicsEditorFacade(){}
 
-        canvasModel = new CanvasModel();
+
+    public static GraphicsEditorFacade GetInstance(IGraphicObjectCreator initialCreator=null)
+    {
+        if(instance==null)
+        {
+            instance = new GraphicsEditorFacade();
+            initialCreator = new LineCreator(LineDrawingAlgorithms.CDADraw);
+            instance.SetCreator(initialCreator);
+            instance.canvasModel = new CanvasModel();
+        }
+        return instance;
     }
 
     public void SetCreator(IGraphicObjectCreator creator)
@@ -30,18 +39,18 @@ public class GraphicsEditorFacade : IInputHandler
         currentState = new CreationState(currentCreator.GetRequiredPointsCount());
     }
 
-    public void HandlePoint(Point point)
+    public void HandlePoint(Color color,Point point)
     {
         currentState.AddPoint(point);
 
         if (currentState.IsReadyToCreate())
         {
-            AddGraphicObject();
+            AddGraphicObject(color);
             currentState = new CreationState(currentCreator.GetRequiredPointsCount());
         }
     }
 
-    public void HandleMouseMove(Point point)
+    public void HandleMouseMove(Color color,Point point)
     {
         // Удаляем старый предпросматриваемый объект
         previewGraphicObject = null;
@@ -51,35 +60,49 @@ public class GraphicsEditorFacade : IInputHandler
         if (currentPoints.Count > 0)
         {
             var previewPoints = new List<Point>(currentPoints) { point };
-            previewGraphicObject = currentCreator.CreateGraphicObject(previewPoints);
+            previewGraphicObject = currentCreator.CreateGraphicObject(color, previewPoints);
         }
     }
 
-    private void AddGraphicObject()
+    private void AddGraphicObject(Color color)
     {
-        var graphicObject = currentCreator.CreateGraphicObject(currentState.GetPoints());
+        var graphicObject = currentCreator.CreateGraphicObject(color, currentState.GetPoints());
         if (graphicObject != null)
         {
             canvasModel.AddObject(graphicObject);
         }
     }
 
-    public IEnumerable<Point> GetPoints()
+    //public IEnumerable<Point> GetPoints()
+    //{
+    //    return canvasModel.GetPoints();
+    //}
+
+    //public IEnumerable<Point> GetPreviewPoints()
+    //{
+    //    return previewGraphicObject?.GetPoints() ?? Enumerable.Empty<Point>();
+    //}
+
+    public bool Undo()
     {
-        return canvasModel.GetPoints();
+        return canvasModel.Undo();
     }
 
-    public IEnumerable<Point> GetPreviewPoints()
+        
+    public IDrwaingGraphicObject? GetPreviewObject()
     {
-        return previewGraphicObject?.GetPoints() ?? Enumerable.Empty<Point>();
+        return previewGraphicObject;
     }
+
+    public IEnumerable<IDrwaingGraphicObject> GetGraphicObjects()=> canvasModel.GetGraphicObjects();
+
 }
 
 
-public class GraphicPoint(Point point) : IDrwaingGraphicObject
-{
-    public IEnumerable<Point> GetPoints()
-    {
-        return new List<Point>() { point };
-    }
-}
+//public class GraphicPoint(Point point) : IDrwaingGraphicObject
+//{
+//    public IEnumerable<Point> GetPoints()
+//    {
+//        return new List<Point>() { point };
+//    }
+//}

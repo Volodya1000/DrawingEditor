@@ -1,4 +1,8 @@
 ﻿using DrawingEditor.Core;
+using DrawingEditor.Core.Algorithms.LineAlgorithms;
+using DrawingEditor.Core.Models.Interfaces;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.CompilerServices;
 
@@ -8,20 +12,16 @@ public class PanelController
     private readonly BufferedPanel panel;
     private readonly PanelInputHandler inputHandler;
     private readonly GridRenderer gridRenderer;
-    private readonly GraphicsEditorFacade graphicsEditorFacade;
 
     private readonly int cellSize;
-
-    public bool GridEnable { get; set; } = false;
 
     public PanelController(BufferedPanel panel, int gridWidth, int gridHeight, int cellSize)
     {
         this.panel = panel;
 
         this.cellSize = cellSize;
-        graphicsEditorFacade = new GraphicsEditorFacade();
         gridRenderer = new GridRenderer(gridWidth, gridHeight, cellSize);
-        inputHandler = new PanelInputHandler(panel, graphicsEditorFacade, gridWidth, gridHeight,cellSize);
+        inputHandler = new PanelInputHandler(panel, gridWidth, gridHeight, cellSize);
 
         panel.Paint += Panel_Paint;
     }
@@ -32,25 +32,64 @@ public class PanelController
         graphics.Clear(Color.White);
         graphics.Transform = inputHandler.GetTransformationMatrix();
 
-        if (GridEnable)
+        if (CurentDrawingSettings.GetInstance().GridEnable)
             gridRenderer.DrawGrid(graphics);
 
-        IEnumerable<Point> points = graphicsEditorFacade.GetPoints();
+        //IEnumerable<Point> points = GraphicsEditorFacade.GetInstance().GetPoints();
 
-        DrawPoints(graphics,points);
+        DrawObjectsEnumerable(graphics, GraphicsEditorFacade.GetInstance().GetGraphicObjects());
 
-        IEnumerable<Point> previewPoints = graphicsEditorFacade.GetPreviewPoints();
-
-        DrawPoints(graphics, previewPoints);
+        IDrwaingGraphicObject previewObject = GraphicsEditorFacade.GetInstance().GetPreviewObject();
+        if(previewObject!=null) DrawObject(graphics,previewObject);
+        // DrawPoints(graphics, previewPoints);
 
         graphics.ResetTransform();
     }
 
-    private void DrawPoints(Graphics graphics,IEnumerable<Point> points)
+    //private void DrawPoints(Graphics graphics,IEnumerable<Point> points, Color color)
+    //{
+    //    foreach (var point in points)
+    //        graphics.FillRectangle(color, point.X * cellSize, point.Y * cellSize, cellSize, cellSize);
+    //}
+
+    private void DrawObjectsEnumerable(Graphics graphics, IEnumerable<IDrwaingGraphicObject> graphicObjects)
     {
-        foreach (var point in points)
+        foreach (var graphicObject in graphicObjects)
+            DrawObject(graphics,graphicObject);
+
+    }
+
+    private void DrawObject(Graphics graphics, IDrwaingGraphicObject graphicObject)
+    {
+        foreach ((Point point, double intensity) item in graphicObject.GetPointsWithIntensity())
         {
-            graphics.FillRectangle(Brushes.Red, point.X * cellSize, point.Y * cellSize, cellSize, cellSize);
+            int alpha = (int)(item.intensity * 255);
+
+            Color color = graphicObject.LineColor;
+
+            Color transparentColor = Color.FromArgb(alpha, color.R, color.G, color.B);
+
+            Brush brush = new SolidBrush(transparentColor);
+
+            graphics.FillRectangle(brush,
+            item.point.X* cellSize,
+            item.point.Y* cellSize,
+            cellSize, cellSize);
         }
     }
+
+    //private void DrawWuLine(Graphics graphics, IEnumerable<(Point point, float intensity)> intensityPoints)
+    //{
+    //    foreach (var intensityPoint in intensityPoints)
+    //    {
+    //        // Вычисляем цвет на основе интенсивности
+    //        Color color = Color.FromArgb((int)(intensityPoint.intensity * 255), Color.Red); 
+
+    //        // Заполняем прямоугольник с учетом интенсивности
+    //        using (Brush brush = new SolidBrush(color))
+    //        {
+    //            graphics.FillRectangle(brush, intensityPoint.point.X * cellSize, intensityPoint.point.Y * cellSize, cellSize, cellSize);
+    //        }
+    //    }
+    //}
 }
