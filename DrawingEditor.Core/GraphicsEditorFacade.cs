@@ -73,22 +73,17 @@ public class GraphicsEditorFacade //: IInputHandler
         }
     }
 
-    //public IEnumerable<Point> GetPoints()
-    //{
-    //    return canvasModel.GetPoints();
-    //}
-
-    //public IEnumerable<Point> GetPreviewPoints()
-    //{
-    //    return previewGraphicObject?.GetPoints() ?? Enumerable.Empty<Point>();
-    //}
-
     public bool Undo()
     {
         return canvasModel.Undo();
     }
 
-        
+    public bool Redo()
+    {
+        return canvasModel.Redo();
+    }
+
+
     public IDrwaingGraphicObject? GetPreviewObject()
     {
         return previewGraphicObject;
@@ -99,10 +94,4 @@ public class GraphicsEditorFacade //: IInputHandler
 }
 
 
-//public class GraphicPoint(Point point) : IDrwaingGraphicObject
-//{
-//    public IEnumerable<Point> GetPoints()
-//    {
-//        return new List<Point>() { point };
-//    }
-//}
+

@@ -18,6 +18,6 @@ public class WuLineCreator: IGraphicObjectCreator
     public IDrwaingGraphicObject? CreateGraphicObject(Color color, IEnumerable<Point> points)
     {
         var pointList = points.ToList();
-        return pointList.Count >= 2 ? new WuLine(color, pointList[0], pointList[1], _lineAlgorithm) : null;
+        return pointList.Count >= 2 ? new WuLine(color,1, pointList[0], pointList[1], _lineAlgorithm) : null;
     }
 }

@@ -4,10 +4,11 @@ using System.Drawing;
 
 namespace DrawingEditor.Core;
 
+
+// <<Memento>>
 public class CanvasModel
 {
-    private DrawingState currentState { get; set; }
-
+    private DrawingState currentState;
     private DrawingHistory history = new DrawingHistory();
 
     public CanvasModel()
@@ -15,46 +16,51 @@ public class CanvasModel
         currentState = new DrawingState(new List<IDrwaingGraphicObject>());
     }
 
-
     public void AddObject(IDrwaingGraphicObject obj)
     {
-        List<IDrwaingGraphicObject> newObjects = new List<IDrwaingGraphicObject>(currentState.GraphicObjects);
-        newObjects.Add(obj);
-        SetState(new DrawingState(newObjects));
+        // Сохраняем текущее состояние перед изменением
+        history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
+        // Применяем изменение: создаём новое состояние с добавленным объектом
+        List<IDrwaingGraphicObject> newObjects = new List<IDrwaingGraphicObject>(currentState.GraphicObjects)
+        {
+            obj
+        };
+        currentState = new DrawingState(newObjects);
     }
 
-    public void RemoveObject(IDrwaingGraphicObject obj) => currentState.GraphicObjects.Remove(obj);
+    public void RemoveObject(IDrwaingGraphicObject obj)
+    {
+        history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
+        List<IDrwaingGraphicObject> newObjects = new List<IDrwaingGraphicObject>(currentState.GraphicObjects);
+        newObjects.Remove(obj);
+        currentState = new DrawingState(newObjects);
+    }
 
+    public IEnumerable<Point> GetPoints() =>
+        currentState.GraphicObjects.SelectMany(x => x.GetPoints());
 
-    public IEnumerable<Point> GetPoints() => currentState.GraphicObjects.SelectMany(x => x.GetPoints());
+    public IEnumerable<IDrwaingGraphicObject> GetGraphicObjects() =>
+        currentState.GraphicObjects;
 
-
-    public IEnumerable<IDrwaingGraphicObject> GetGraphicObjects() => currentState.GraphicObjects;
-
-    #region WorkWithState
-
-    private void SetState(DrawingState newState)
+    public bool Undo()
+    {
+        var previousState = history.Undo(currentState);
+        if (previousState != null)
         {
-            SaveState(); // Сохраняем текущее состояние перед изменением
-            currentState = newState;
+            currentState = previousState;
+            return true;
         }
+        return false;
+    }
 
-        private void SaveState()
+    public bool Redo()
+    {
+        var nextState = history.Redo(currentState);
+        if (nextState != null)
         {
-            // Создаем копию текущего состояния и сохраняем в истории
-            history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
+            currentState = nextState;
+            return true;
         }
-
-        public bool Undo()
-        {
-            DrawingState previousState = history.Undo();
-            if (previousState != null)
-            {
-                currentState = previousState;
-                return true;
-            }
-            else
-                return false;
-        }
-    #endregion
+        return false;
+    }
 }

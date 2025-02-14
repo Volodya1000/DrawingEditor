@@ -8,6 +8,7 @@ internal class HorizontalToolPanelFactory
 
     private CheckBox gridCheckBox;
     private Button UndoButton;
+    private Button RedoButton;
     private PictureBox color_picker;
     private Button pic_color;
 
@@ -24,49 +25,75 @@ internal class HorizontalToolPanelFactory
             AutoScroll = true,
             FlowDirection = FlowDirection.LeftToRight,
             WrapContents = false,
-            Height = 180, 
+            Height = 180,
             Padding = new Padding(1),
             BorderStyle = BorderStyle.Fixed3D
         };
 
+        // Настройка CheckBox
         gridCheckBox = new CheckBox
         {
             Text = "Grid",
             Font = new Font("Arial", 12),
+            Checked = true
         };
         gridCheckBox.CheckedChanged += gridCheckBox_CheckedChanged;
         toolPanel.Controls.Add(gridCheckBox);
 
+        // Настройка кнопки "Отменить"
         UndoButton = new Button()
         {
             Text = "Отменить",
-            Height = 40, 
-            Font = new Font("Arial", 12), 
+            Height = 40,
+            Font = new Font("Arial", 12),
+            AutoSize = true, // Позволяет кнопке автоматически подстраиваться под текст
+            Padding = new Padding(10) // Добавляем отступы для улучшения внешнего вида
         };
         UndoButton.Click += UndoButton_Click;
         toolPanel.Controls.Add(UndoButton);
 
+        // Настройка кнопки "Отменить"
+        RedoButton = new Button()
+        {
+            Text = "вернуть",
+            Height = 40,
+            Font = new Font("Arial", 12),
+            AutoSize = true, // Позволяет кнопке автоматически подстраиваться под текст
+            Padding = new Padding(10) // Добавляем отступы для улучшения внешнего вида
+        };
+        RedoButton.Click += RedoButton_Click;
+        toolPanel.Controls.Add(RedoButton);
+
+        // Настройка color_picker
         color_picker = new PictureBox()
         {
-            SizeMode = PictureBoxSizeMode.StretchImage,
+            SizeMode = PictureBoxSizeMode.Zoom, // Изменяем на Zoom для сохранения пропорций
             Width = toolPanel.Width - 20, // Учитываем отступы
-            Height = 150, // Увеличиваем высоту элемента
+            Height = 150, // Высота элемента
         };
 
         string workingDirectory = Environment.CurrentDirectory;
         string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
         string imagePath = Path.Combine(projectDirectory, "Images", "color_palette.png");
-        color_picker.Image = Image.FromFile(imagePath);
+
+        // Проверяем существование файла перед загрузкой изображения
+        if (File.Exists(imagePath))
+        {
+            color_picker.Image = Image.FromFile(imagePath);
+        }
+
         color_picker.MouseClick += color_picker_MouseClick;
 
         toolPanel.Controls.Add(color_picker);
 
+        // Настройка pic_color
         pic_color = new Button
         {
             BackColor = Color.White,
-            Width = 120, 
-            Height = 120, 
+            Width = 120,
+            Height = 120,
         };
+
         toolPanel.Controls.Add(pic_color);
 
         return toolPanel;
@@ -82,6 +109,12 @@ internal class HorizontalToolPanelFactory
     private void UndoButton_Click(object sender, EventArgs e)
     {
         bool PreviusStateExists = GraphicsEditorFacade.GetInstance().Undo();
+        bufferedPanel.Invalidate();
+    }
+
+    private void RedoButton_Click(object sender, EventArgs e)
+    {
+        bool PreviusStateExists = GraphicsEditorFacade.GetInstance().Redo();
         bufferedPanel.Invalidate();
     }
 

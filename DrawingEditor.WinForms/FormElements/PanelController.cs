@@ -40,17 +40,11 @@ public class PanelController
         DrawObjectsEnumerable(graphics, GraphicsEditorFacade.GetInstance().GetGraphicObjects());
 
         IDrwaingGraphicObject previewObject = GraphicsEditorFacade.GetInstance().GetPreviewObject();
+        
         if(previewObject!=null) DrawObject(graphics,previewObject);
-        // DrawPoints(graphics, previewPoints);
 
         graphics.ResetTransform();
     }
-
-    //private void DrawPoints(Graphics graphics,IEnumerable<Point> points, Color color)
-    //{
-    //    foreach (var point in points)
-    //        graphics.FillRectangle(color, point.X * cellSize, point.Y * cellSize, cellSize, cellSize);
-    //}
 
     private void DrawObjectsEnumerable(Graphics graphics, IEnumerable<IDrwaingGraphicObject> graphicObjects)
     {
@@ -77,19 +71,4 @@ public class PanelController
             cellSize, cellSize);
         }
     }
-
-    //private void DrawWuLine(Graphics graphics, IEnumerable<(Point point, float intensity)> intensityPoints)
-    //{
-    //    foreach (var intensityPoint in intensityPoints)
-    //    {
-    //        // Вычисляем цвет на основе интенсивности
-    //        Color color = Color.FromArgb((int)(intensityPoint.intensity * 255), Color.Red); 
-
-    //        // Заполняем прямоугольник с учетом интенсивности
-    //        using (Brush brush = new SolidBrush(color))
-    //        {
-    //            graphics.FillRectangle(brush, intensityPoint.point.X * cellSize, intensityPoint.point.Y * cellSize, cellSize, cellSize);
-    //        }
-    //    }
-    //}
 }
