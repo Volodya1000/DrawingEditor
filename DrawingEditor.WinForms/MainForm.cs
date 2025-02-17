@@ -1,5 +1,4 @@
 using DrawingEditor.Core;
-using DrawingEditor.WinForms.HorizontalToolPanelElements;
 using DrawingEditor.WinForms.ToolBarElements;
 using System.Windows.Forms;
 
@@ -17,11 +16,12 @@ public partial class MainForm : Form
         InitializeComponent();
         InitializeDrawingPanel();
         InitializeUI();
-        panelController = new PanelController(bufferedPanel, 100, 100, 7);
+        panelController = new PanelController(bufferedPanel, 1000, 1000, 7);
     }
 
     private void InitializeUI()
-    {;
+    {
+        this.Text = "Графический редактор";
         CreateHorizontalToolPanel();
         CreateVerticalToolbar();
     }

@@ -39,18 +39,18 @@ public class GraphicsEditorFacade //: IInputHandler
         currentState = new CreationState(currentCreator.GetRequiredPointsCount());
     }
 
-    public void HandlePoint(Color color,Point point)
+    public void HandlePoint(Color color, int lineThickness, Point point)
     {
         currentState.AddPoint(point);
 
         if (currentState.IsReadyToCreate())
         {
-            AddGraphicObject(color);
+            AddGraphicObject(color, lineThickness);
             currentState = new CreationState(currentCreator.GetRequiredPointsCount());
         }
     }
 
-    public void HandleMouseMove(Color color,Point point)
+    public void HandleMouseMove(Color color, int lineThickness, Point point)
     {
         // Удаляем старый предпросматриваемый объект
         previewGraphicObject = null;
@@ -60,13 +60,13 @@ public class GraphicsEditorFacade //: IInputHandler
         if (currentPoints.Count > 0)
         {
             var previewPoints = new List<Point>(currentPoints) { point };
-            previewGraphicObject = currentCreator.CreateGraphicObject(color, previewPoints);
+            previewGraphicObject = currentCreator.CreateGraphicObject(color, lineThickness, previewPoints);
         }
     }
 
-    private void AddGraphicObject(Color color)
+    private void AddGraphicObject(Color color,int lineThickness)
     {
-        var graphicObject = currentCreator.CreateGraphicObject(color, currentState.GetPoints());
+        var graphicObject = currentCreator.CreateGraphicObject(color, lineThickness, currentState.GetPoints());
         if (graphicObject != null)
         {
             canvasModel.AddObject(graphicObject);

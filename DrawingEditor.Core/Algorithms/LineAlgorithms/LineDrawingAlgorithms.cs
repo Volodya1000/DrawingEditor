@@ -4,20 +4,20 @@ namespace DrawingEditor.Core.Algorithms.LineAlgorithms;
 
 public static class LineDrawingAlgorithms
 {
+    //Цифровой дифференциальный анализатор
     public static IEnumerable<Point> CDADraw(Point start, Point end)
     {
-        // Простой пример ЦДА
         int dx = end.X - start.X;
         int dy = end.Y - start.Y;
-        int steps = Math.Max(Math.Abs(dx), Math.Abs(dy));
+        int length = Math.Max(Math.Abs(dx), Math.Abs(dy));
 
-        float xIncrement = dx / (float)steps;
-        float yIncrement = dy / (float)steps;
+        float xIncrement = dx / (float)length;
+        float yIncrement = dy / (float)length;
 
         float x = start.X;
         float y = start.Y;
 
-        for (int i = 0; i <= steps; i++)
+        for (int i = 0; i <= length; i++)
         {
             yield return new Point((int)Math.Round(x), (int)Math.Round(y));
             x += xIncrement;
@@ -25,9 +25,9 @@ public static class LineDrawingAlgorithms
         }
     }
 
+    // Алгоритм Брезенхема
     public static IEnumerable<Point> BresenhamDraw(Point start, Point end)
     {
-        // Алгоритм Брезенхема
         int x = start.X;
         int y = start.Y;
         int dx = Math.Abs(end.X - start.X);
@@ -46,6 +46,8 @@ public static class LineDrawingAlgorithms
         }
     }
 
+
+    //Алгоритм Ву
     #region Wu
 
     public static IEnumerable<(Point point, double intensity)> WuDraw(Point start, Point end)

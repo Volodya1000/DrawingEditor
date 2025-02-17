@@ -14,6 +14,7 @@ internal class CurentDrawingSettings
             instance = new CurentDrawingSettings();
             instance.SelectedColor = Color.Black;
             instance.GridEnable=true;
+            instance.lineThickness = 1;
         }
         return instance;
     }
@@ -22,6 +23,5 @@ internal class CurentDrawingSettings
 
     public Color SelectedColor { get; set; }
 
-
-
+    public int lineThickness { get; set; }
 }

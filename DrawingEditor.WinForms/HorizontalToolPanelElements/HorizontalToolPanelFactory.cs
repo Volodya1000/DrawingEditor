@@ -1,6 +1,5 @@
 ﻿using DrawingEditor.Core;
-
-namespace DrawingEditor.WinForms.HorizontalToolPanelElements;
+using DrawingEditor.WinForms;
 
 internal class HorizontalToolPanelFactory
 {
@@ -11,6 +10,9 @@ internal class HorizontalToolPanelFactory
     private Button RedoButton;
     private PictureBox color_picker;
     private Button pic_color;
+
+    private NumericUpDown thicknessSelector;
+    private Label thicknessLabel;
 
     public HorizontalToolPanelFactory(BufferedPanel bufferedPanel)
     {
@@ -46,20 +48,20 @@ internal class HorizontalToolPanelFactory
             Text = "Отменить",
             Height = 40,
             Font = new Font("Arial", 12),
-            AutoSize = true, // Позволяет кнопке автоматически подстраиваться под текст
-            Padding = new Padding(10) // Добавляем отступы для улучшения внешнего вида
+            AutoSize = true,
+            Padding = new Padding(10)
         };
         UndoButton.Click += UndoButton_Click;
         toolPanel.Controls.Add(UndoButton);
 
-        // Настройка кнопки "Отменить"
+        // Настройка кнопки "Вернуть"
         RedoButton = new Button()
         {
-            Text = "вернуть",
+            Text = "Вернуть",
             Height = 40,
             Font = new Font("Arial", 12),
-            AutoSize = true, // Позволяет кнопке автоматически подстраиваться под текст
-            Padding = new Padding(10) // Добавляем отступы для улучшения внешнего вида
+            AutoSize = true,
+            Padding = new Padding(10)
         };
         RedoButton.Click += RedoButton_Click;
         toolPanel.Controls.Add(RedoButton);
@@ -67,23 +69,21 @@ internal class HorizontalToolPanelFactory
         // Настройка color_picker
         color_picker = new PictureBox()
         {
-            SizeMode = PictureBoxSizeMode.Zoom, // Изменяем на Zoom для сохранения пропорций
-            Width = toolPanel.Width - 20, // Учитываем отступы
-            Height = 150, // Высота элемента
+            SizeMode = PictureBoxSizeMode.Zoom,
+            Width = toolPanel.Width - 20,
+            Height = 150,
         };
 
         string workingDirectory = Environment.CurrentDirectory;
         string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
         string imagePath = Path.Combine(projectDirectory, "Images", "color_palette.png");
 
-        // Проверяем существование файла перед загрузкой изображения
         if (File.Exists(imagePath))
         {
             color_picker.Image = Image.FromFile(imagePath);
         }
 
         color_picker.MouseClick += color_picker_MouseClick;
-
         toolPanel.Controls.Add(color_picker);
 
         // Настройка pic_color
@@ -96,9 +96,36 @@ internal class HorizontalToolPanelFactory
 
         toolPanel.Controls.Add(pic_color);
 
+        // Настройка выбора толщины линии
+        thicknessLabel = new Label
+        {
+            Text = "Толщина линии:",
+            Font = new Font("Arial", 12),
+            AutoSize = true
+        };
+
+        thicknessSelector = new NumericUpDown
+        {
+            Minimum = 1, // Минимальная толщина
+            Maximum = 20, // Максимальная толщина (можно сделать переменной)
+            Value = 1, // Начальное значение
+            Increment = 1, // Шаг изменения толщины
+            Width = 60 // Ширина элемента управления
+        };
+
+        thicknessSelector.ValueChanged += ThicknessSelector_ValueChanged;
+
+        toolPanel.Controls.Add(thicknessLabel);
+        toolPanel.Controls.Add(thicknessSelector);
+
         return toolPanel;
     }
 
+    private void ThicknessSelector_ValueChanged(object sender, EventArgs e)
+    {
+        int lineThickness = (int)thicknessSelector.Value;
+        CurentDrawingSettings.GetInstance().lineThickness = lineThickness;
+    }
 
     private void gridCheckBox_CheckedChanged(object sender, EventArgs e)
     {
@@ -121,13 +148,13 @@ internal class HorizontalToolPanelFactory
     private void color_picker_MouseClick(object sender, MouseEventArgs e)
     {
         Point point = set_point(color_picker, e.Location);
+
         if (point.X >= 0 && point.X < color_picker.Image.Width && point.Y >= 0 && point.Y < color_picker.Image.Height)
         {
             pic_color.BackColor = ((Bitmap)color_picker.Image).GetPixel(point.X, point.Y);
             CurentDrawingSettings.GetInstance().SelectedColor = pic_color.BackColor;
         }
     }
-
 
     private void validate(Bitmap bm, Stack<Point> sp, int x, int y, Color old_color, Color new_color)
     {
@@ -142,28 +169,26 @@ internal class HorizontalToolPanelFactory
     public void Fill(Bitmap bm, int x, int y, Color new_clr)
     {
         Color old_color = bm.GetPixel(x, y);
-        Stack<Point> pixel = new Stack<Point>();
-        pixel.Push(new Point(x, y));
+        Stack<Point> pixelStack = new Stack<Point>();
+        pixelStack.Push(new Point(x, y));
         bm.SetPixel(x, y, new_clr);
+
         if (old_color == new_clr) return;
-        while (pixel.Count > 0)
+
+        while (pixelStack.Count > 0)
         {
-            Point pt = (Point)pixel.Pop();
-            validate(bm, pixel, pt.X - 1, pt.Y, old_color, new_clr);
-            validate(bm, pixel, pt.X, pt.Y - 1, old_color, new_clr);
-            validate(bm, pixel, pt.X + 1, pt.Y, old_color, new_clr);
-            validate(bm, pixel, pt.X, pt.Y + 1, old_color, new_clr);
+            Point pt = pixelStack.Pop();
+            validate(bm, pixelStack, pt.X - 1, pt.Y, old_color, new_clr);
+            validate(bm, pixelStack, pt.X, pt.Y - 1, old_color, new_clr);
+            validate(bm, pixelStack, pt.X + 1, pt.Y, old_color, new_clr);
+            validate(bm, pixelStack, pt.X, pt.Y + 1, old_color, new_clr);
         }
     }
 
-
-
-    //преобразования координат точки (pt) относительно размеров PictureBox
     static Point set_point(PictureBox pb, Point pt)
     {
-        float pX = 1f * ((float)pb.Image.Width / pb.Width);
-        float pY = 1f * ((float)pb.Image.Height / pb.Height);
+        float pX = (float)pb.Image.Width / pb.Width;
+        float pY = (float)pb.Image.Height / pb.Height;
         return new Point((int)(pt.X * pX), (int)(pt.Y * pY));
     }
-
 }

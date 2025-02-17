@@ -18,7 +18,7 @@ public class PanelInputHandler
     private readonly int gridWidth;
     private readonly int gridHeight;
 
-    private const float MinScale = 0.2f;
+    private const float MinScale = 0.01f;
     private const float MaxScale = 10.0f;
 
 
@@ -40,21 +40,25 @@ public class PanelInputHandler
     public Matrix GetTransformationMatrix()
     {
         Matrix matrix = new Matrix();
-        matrix.Translate(offset.X, offset.Y);
-        matrix.Scale(scale, scale);
+        matrix.Translate(offset.X, offset.Y); // Применение смещения
+        matrix.Scale(scale, scale);           // Применение масштаба
         return matrix;
     }
 
     private void HandleMouseWheel(object sender, MouseEventArgs e)
     {
-        float scaleFactor = e.Delta > 0 ? 1.1f : 0.9f;
-        float newScale = scale * scaleFactor;
+        // Определение коэффициента масштабирования
+        // в зависимости от направления прокрутки мыши
+        float scaleFactor = e.Delta > 0 ? 1.1f : 0.9f;  
+        float newScale = scale * scaleFactor; // Вычисление нового масштаба
 
+        // Ограничение масштаба минимальным и максимальным значениями
         newScale = Math.Clamp(newScale, MinScale, MaxScale);
         scaleFactor = newScale / scale;
         scale = newScale;
 
         Point location = e.Location;
+        // Обновление смещения по обоим осям с учетом масштаба
         offset.X = (int)(location.X - (location.X - offset.X) * scaleFactor);
         offset.Y = (int)(location.Y - (location.Y - offset.Y) * scaleFactor);
 
@@ -76,7 +80,7 @@ public class PanelInputHandler
         bool pointIsInGrid = gridPoint.X >= 0 && gridPoint.X < gridWidth && gridPoint.Y >= 0 && gridPoint.Y < gridHeight;
         if (!pointIsInGrid) return;
 
-        GraphicsEditorFacade.GetInstance().HandlePoint(CurentDrawingSettings.GetInstance().SelectedColor,gridPoint);
+        GraphicsEditorFacade.GetInstance().HandlePoint(CurentDrawingSettings.GetInstance().SelectedColor, CurentDrawingSettings.GetInstance().lineThickness, gridPoint);
         panel.Invalidate();
     }
 
@@ -87,7 +91,7 @@ public class PanelInputHandler
         else
         {
             Point gridPoint = ConvertToGridCoordinates(e.Location);
-            GraphicsEditorFacade.GetInstance().HandleMouseMove(CurentDrawingSettings.GetInstance().SelectedColor, gridPoint);
+            GraphicsEditorFacade.GetInstance().HandleMouseMove(CurentDrawingSettings.GetInstance().SelectedColor, CurentDrawingSettings.GetInstance().lineThickness, gridPoint);
             panel.Invalidate();
         }
     }
@@ -105,6 +109,7 @@ public class PanelInputHandler
 
     private void Drag(Point currentLocation)
     {
+        // Обновление смещения по обоим осям при перетаскивании
         offset.X += currentLocation.X - previousMousePosition.X;
         offset.Y += currentLocation.Y - previousMousePosition.Y;
         previousMousePosition = currentLocation;
@@ -115,9 +120,12 @@ public class PanelInputHandler
 
     private Point ConvertToGridCoordinates(Point screenPoint)
     {
+        // Преобразование координат экрана
+        // в виртуальные координаты сетки с учетом смещения и масштаба
         float worldX = (screenPoint.X - offset.X) / scale;
         float worldY = (screenPoint.Y - offset.Y) / scale;
 
+        // Вычисление номеров виртуальных ячеек учитыва размер одной ячейки
         int gridX = (int)(worldX / cellSize);
         int gridY = (int)(worldY / cellSize);
 
