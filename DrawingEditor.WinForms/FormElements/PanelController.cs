@@ -55,6 +55,7 @@ public class PanelController
 
     private void DrawObject(Graphics graphics, IDrwaingGraphicObject graphicObject)
     {
+        if (graphicObject == null) return;
         foreach ((Point point, double intensity) item in graphicObject.GetPointsWithIntensity())
         {
             int alpha = (int)(item.intensity * 255);

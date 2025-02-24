@@ -1,5 +1,4 @@
-﻿using DrawingEditor.Core.Algorithms.LineAlgorithms;
-using DrawingEditor.Core.Models.Interfaces;
+﻿using DrawingEditor.Core.Models.Interfaces;
 using System.Drawing;
 
 namespace DrawingEditor.Core.GraphickObjectsCreators;
@@ -18,6 +17,6 @@ public class LineCreator : IGraphicObjectCreator
     public IDrwaingGraphicObject? CreateGraphicObject(Color color, int lineThickness,IEnumerable<Point> points)
     {
         var pointList = points.ToList();
-        return pointList.Count >= 2 ? new Line(color, lineThickness, pointList[0], pointList[1],  _lineAlgorithm) : null;
+        return pointList.Count >= GetRequiredPointsCount() ? new Line(color, lineThickness, pointList[0], pointList[1],  _lineAlgorithm) : null;
     }
 }

@@ -16,6 +16,6 @@ public abstract class GraphicObjectBase : IDrwaingGraphicObject
 
     // Абстрактные методы, специфичные для каждой фигуры
     public abstract IEnumerable<Point> GetPoints();
-    public abstract List<Point> GetControlPoints();
+    public abstract IEnumerable<Point> GetControlPoints();
     public abstract IEnumerable<(Point point, double intensity)> GetPointsWithIntensity();
 }

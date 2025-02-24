@@ -15,16 +15,9 @@ internal class ToolbarFactory
         //toolbar.AddToolButton("Brush", Color.LightGreen, () => MessageBox.Show("Brush selected"));
 
         LinesActionsFactory linesFactory = new LinesActionsFactory();
-        linesFactory.AddLinesSubMenu(toolbar);
+        linesFactory.AddSubMenu(toolbar);
 
-        //toolbar.AddToolGroupButton("Shapes", Color.LightYellow,
-        //    new Dictionary<string, Action>
-        //    {
-        //        { "Circle", () => MessageBox.Show("Circle selected") },
-        //        { "Square", () => MessageBox.Show("Square selected") },
-        //        { "Triangle", () => MessageBox.Show("Triangle selected") }
-        //    });
-
-
+        SecondOrderLinesActionsFactory secondOrderLinesActionsFactory = new ();
+        secondOrderLinesActionsFactory.AddSubMenu (toolbar);
     }
 }

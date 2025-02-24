@@ -6,7 +6,7 @@ public interface IDrwaingGraphicObject
 {
     public IEnumerable<Point> GetPoints();
 
-    public List<Point> GetControlPoints();
+    public IEnumerable<Point> GetControlPoints();
 
     public IEnumerable<(Point point, double intensity)> GetPointsWithIntensity();
 

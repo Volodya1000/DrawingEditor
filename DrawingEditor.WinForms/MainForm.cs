@@ -16,7 +16,7 @@ public partial class MainForm : Form
         InitializeComponent();
         InitializeDrawingPanel();
         InitializeUI();
-        panelController = new PanelController(bufferedPanel, 1000, 1000, 7);
+        panelController = new PanelController(bufferedPanel, 500, 500, 7);
     }
 
     private void InitializeUI()
