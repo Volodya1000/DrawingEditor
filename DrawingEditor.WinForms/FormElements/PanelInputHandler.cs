@@ -11,7 +11,6 @@ public class PanelInputHandler
     private Point offset = Point.Empty;
     private Point previousMousePosition;
     private bool isDragging;
-    private readonly int PointsQueueSize; // Количество хранимых точек
 
     private readonly int cellSize;
 
@@ -26,7 +25,6 @@ public class PanelInputHandler
     public PanelInputHandler(BufferedPanel panel, int gridWidth, int gridHeight ,int cellSize,int pointsQueueSize = 5)
     {
         this.panel = panel;
-        this.PointsQueueSize = pointsQueueSize;
         this.cellSize = cellSize;
         this.gridWidth = gridWidth;
         this.gridHeight = gridHeight;
@@ -91,7 +89,10 @@ public class PanelInputHandler
         else
         {
             Point gridPoint = ConvertToGridCoordinates(e.Location);
-            GraphicsEditorFacade.GetInstance().HandleMouseMove(CurentDrawingSettings.GetInstance().SelectedColor, CurentDrawingSettings.GetInstance().lineThickness, gridPoint);
+            GraphicsEditorFacade.GetInstance()
+                                .HandleMouseMove(CurentDrawingSettings.GetInstance().SelectedColor,
+                                                 CurentDrawingSettings.GetInstance().lineThickness,
+                                                 gridPoint);
             panel.Invalidate();
         }
     }

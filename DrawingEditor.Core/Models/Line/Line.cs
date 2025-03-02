@@ -4,10 +4,10 @@ using System.Drawing;
 namespace DrawingEditor.Core;
 
 
-public class Line : GraphicObjectBase
+public class Line : GraphicObjectBase, IEditableGraphicObject
 {
-    public Point Start { get; }
-    public Point End { get; }
+    public Point Start { get; private set; }
+    public Point End { get; private set; }
 
     private readonly Func<Point, Point, IEnumerable<Point>> _drawAlgorithm;
     private readonly ThickLineDrawer _thickLineDrawer;
@@ -45,6 +45,21 @@ public class Line : GraphicObjectBase
         else
         {
             return _drawAlgorithm(Start, End).Select(p => (p, 1.0)); // Присваиваем каждой точке интенсивность 1.0
+        }
+    }
+
+    public void UpdateControlPoint(int index, Point newPoint)
+    {
+        switch (index)
+        {
+            case 0:
+                Start = newPoint;
+                break;
+            case 1:
+                End = newPoint;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(index), "Индекс опорной точки должен быть 0 или 1 для линии.");
         }
     }
 }

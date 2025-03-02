@@ -35,9 +35,8 @@ public class PanelController
         if (CurentDrawingSettings.GetInstance().GridEnable)
             gridRenderer.DrawGrid(graphics);
 
-        //IEnumerable<Point> points = GraphicsEditorFacade.GetInstance().GetPoints();
 
-        DrawObjectsEnumerable(graphics, GraphicsEditorFacade.GetInstance().GetGraphicObjects());
+        DrawObjectsEnumerable(graphics, GraphicsEditorFacade.GetInstance().GetObjectsForRendering());
 
         IDrwaingGraphicObject previewObject = GraphicsEditorFacade.GetInstance().GetPreviewObject();
         
