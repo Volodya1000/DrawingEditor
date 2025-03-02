@@ -26,17 +26,21 @@ internal class DragControlPointState : IEditorState
     // При перемещении мыши создаём preview-объект с изменённой опорной точкой
     public void HandleMouseMove(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-        var previewPoints = new List<Point>(originalControlPoints);
-        previewPoints[controlPointIndex] = point;
-        var previewObject = editor.CurrentCreator.CreateGraphicObject(color, lineThickness, previewPoints);
-        editor.SetPreviewGraphicObject(previewObject);
+        selectedObject.UpdateControlPoint(controlPointIndex, point);
+        editor.SetPreviewGraphicObject(null);
     }
 
     // По клику фиксируем изменение в оригинальном объекте
     public void HandlePoint(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-        selectedObject.UpdateControlPoint(controlPointIndex, point);
-        editor.SetPreviewGraphicObject(null);
+        //selectedObject.UpdateControlPoint(controlPointIndex, point);
+        //editor.SetPreviewGraphicObject(null);
         editor.SetEditorState(new IdleState());
+    }
+
+    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    {
+        foreach (var cp in selectedObject.GetControlPoints())
+            yield return new ControlPointMarker(cp, Color.Red, 3.0f);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using DrawingEditor.Core.Models.Interfaces;
+using System.Drawing;
 
 namespace DrawingEditor.Core;
 
@@ -51,5 +52,10 @@ public class CreationState : IEditorState
             // После создания объекта возвращаемся в состояние ожидания
             editor.SetEditorState(new IdleState());
         }
+    }
+
+    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    {
+        return Enumerable.Empty<IDrwaingGraphicObject>();
     }
 }

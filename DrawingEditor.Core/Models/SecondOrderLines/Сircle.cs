@@ -1,9 +1,10 @@
 ﻿using DrawingEditor.Core.Models.Interfaces;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using System.Drawing;
 
 namespace DrawingEditor.Core;
 
-public class Circle: GraphicObjectBase
+public class Circle: GraphicObjectBase, IEditableGraphicObject
 {
     public Point Center { get; set; }
 
@@ -21,12 +22,21 @@ public class Circle: GraphicObjectBase
         return BresenhamCircle(Center.X, Center.Y, Radius);
        
     }
-
     
 
     public override IEnumerable<Point> GetControlPoints()
     {
-        return GetPoints();
+        // Самая правая точка
+        yield return new Point(Center.X + Radius, Center.Y);
+
+        // Самая левая точка
+        yield return new Point(Center.X - Radius, Center.Y);
+
+        // Верхняя точка
+        yield return new Point(Center.X, Center.Y - Radius);
+
+        // Нижняя точка
+        yield return new Point(Center.X, Center.Y + Radius);
     }
 
     public override IEnumerable<(Point point, double intensity)> GetPointsWithIntensity()
@@ -62,64 +72,14 @@ public class Circle: GraphicObjectBase
         }
     }
 
-}
-
-
-/*
- 
-public IEnumerable<Point> BresenhamCircle(int _x, int _y)
+    public void UpdateControlPoint(int index, Point newPoint)
     {
-        void DioganalStep(ref int x, ref int y, ref int delta)
-        {
-            x = x + 1;
-            y = y - 1;
-            delta = delta + 2 * x - 2 * y + 2;
-        }
+        // Вычисляем новый радиус как расстояние от центра до новой точки
+        int newRadius = (int)Math.Sqrt(Math.Pow(newPoint.X - Center.X, 2) + Math.Pow(newPoint.Y - Center.Y, 2));
 
-        var points = new List<Point>();
-        int x = 0,
-            y = Radius,
-            gap = 0,
-            delta = 2 - 2 * Radius;
-
-        points.Add(new Point(x, y));
-
-        while (y > delta)
-        {
-            if (delta < 0)
-            {
-                gap = 2 * delta + 2 * y - 1;
-                if (gap > 0)
-                {
-                    DioganalStep(ref x, ref y, ref delta);
-                }
-                else
-                {
-                    x = x + 1;
-                    delta = delta + 2 * x + 1;
-                }
-            }
-            else if (delta > 0)
-            {
-                gap = 2 * delta - 2 * x - 1;
-                if (gap > 0)
-                {
-                    y = y - 1;
-                    delta = delta - 2 * y + 1;
-                }
-                else
-                {
-                    DioganalStep(ref x, ref y, ref delta);
-                }
-            }
-            else
-            {
-                DioganalStep(ref x, ref y, ref delta);
-            }
-            points.Add(new Point(x, y));
-        }
-
-        return points;
+        if (newRadius > 0)
+            Radius = newRadius;
     }
 
- */
+}
+

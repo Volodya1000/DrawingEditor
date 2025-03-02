@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using DrawingEditor.Core.Models.Interfaces;
+using System.Drawing;
 
 namespace DrawingEditor.Core;
 
@@ -17,6 +18,11 @@ public class IdleState : IEditorState
         var creationState = new CreationState(editor.CurrentCreator.GetRequiredPointsCount());
         creationState.AddPoint(point);
         editor.SetEditorState(creationState);
+    }
+
+    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    {
+        return Enumerable.Empty<IDrwaingGraphicObject>();
     }
 }
 

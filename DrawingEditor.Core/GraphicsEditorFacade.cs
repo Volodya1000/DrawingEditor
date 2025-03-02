@@ -16,7 +16,7 @@ public class GraphicsEditorFacade
     private IDrwaingGraphicObject? previewGraphicObject;
 
     // Радиус для определения попадания в опорную точку
-    private int controlPointClickRadius = 5; // Можно настроить
+    public int controlPointClickRadius = 5; // Можно настроить
 
     private GraphicsEditorFacade() { }
 
@@ -44,18 +44,29 @@ public class GraphicsEditorFacade
     // Основной метод обработки клика мыши
     public void HandlePoint(Color color, int lineThickness, Point point)
     {
-        // Сначала проверяем, был ли клик в пределах радиуса опорной точки какого-либо объекта
+        if (currentState is DragControlPointState)
+        {
+            currentState = new IdleState();
+            return;
+        }
         var selectedData = TrySelectControlPoint(point);
         if (selectedData != null)
         {
-            var data = selectedData.Value; // Unwrap the nullable tuple
+            var data = selectedData.Value;
             if (data.graphicObject is IEditableGraphicObject editable)
             {
                 SetEditorState(new DragControlPointState(editable, data.controlPointIndex, controlPointClickRadius));
                 return;
             }
         }
-        // Если клик не попал по опорной точке – делегируем обработку текущему состоянию (например, создание объекта)
+
+        var selectedObject = TrySelectObject(point);
+        if (selectedObject != null)
+        {
+            SetEditorState(new ObjectSelectedState(selectedObject));
+            return;
+        }
+
         currentState.HandlePoint(this, color, lineThickness, point);
     }
 
@@ -97,13 +108,16 @@ public class GraphicsEditorFacade
 
     public IEnumerable<IDrwaingGraphicObject> GetObjectsForRendering()
     {
-        // Если мы в режиме перетаскивания и есть preview, исключаем редактируемый объект из списка
+        IEnumerable<IDrwaingGraphicObject> objects = CanvasModel.GetGraphicObjects();
+
         if (currentState is DragControlPointState dragState && previewGraphicObject != null)
         {
-            return CanvasModel.GetGraphicObjects().Where(obj => !object.ReferenceEquals(obj, dragState.EditingObject));
+            objects = objects.Where(obj => !object.ReferenceEquals(obj, dragState.EditingObject));
         }
-        return CanvasModel.GetGraphicObjects();
+        var additionalObjects = currentState.GetAdditionalRenderingObjects();
+        return objects.Concat(additionalObjects);
     }
+
 
 
     // Метод для проверки попадания клика по опорной точке
@@ -137,11 +151,27 @@ public class GraphicsEditorFacade
         return false;
     }
 
-    private double Distance(Point p1, Point p2)
+    public double Distance(Point p1, Point p2)
     {
         int dx = p1.X - p2.X;
         int dy = p1.Y - p2.Y;
         return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+
+    public IDrwaingGraphicObject? TrySelectObject(Point clickPoint)
+    {
+        foreach (var obj in CanvasModel.GetGraphicObjects())
+        {
+            foreach (var point in obj.GetPoints())
+            {
+                if (Distance(clickPoint, point) <= controlPointClickRadius)
+                {
+                    return obj;
+                }
+            }
+        }
+        return null;
     }
 }
 
