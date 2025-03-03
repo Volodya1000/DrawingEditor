@@ -17,6 +17,18 @@ public class Circle: GraphicObjectBase, IEditableGraphicObject
         Radius=radius;
     }
 
+    public Circle(Color lineColor, int lineThickness, IList<Point> points) : base(lineColor, lineThickness)
+    {
+        Center = points[0];
+        var boundaryPoint = points[1];
+        double radiusSquare = Math.Pow(Center.X - boundaryPoint.X, 2) +
+                             Math.Pow(Center.Y - boundaryPoint.Y, 2);
+        Radius = (int)Math.Sqrt(radiusSquare);
+    }
+
+
+    public int GetRequiredPointsCount() => 2;
+
     public override IEnumerable<Point> GetPoints()
     {
         return BresenhamCircle(Center.X, Center.Y, Radius);

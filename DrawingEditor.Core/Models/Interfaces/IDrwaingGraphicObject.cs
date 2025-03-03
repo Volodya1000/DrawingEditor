@@ -16,7 +16,6 @@ public interface IDrwaingGraphicObject
     //public bool Intersect(Point Point);
 
     //public void Move(Point Point);
-
 }
 
 
