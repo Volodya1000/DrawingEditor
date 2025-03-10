@@ -5,9 +5,9 @@ namespace DrawingEditor.Core;
 
 internal class ObjectSelectedState : IEditorState
 {
-    private readonly IDrwaingGraphicObject selectedObject;
+    private readonly IDrawingGraphicObject selectedObject;
 
-    public ObjectSelectedState(IDrwaingGraphicObject selectedObject)
+    public ObjectSelectedState(IDrawingGraphicObject selectedObject)
     {
         this.selectedObject = selectedObject;
     }
@@ -45,7 +45,7 @@ internal class ObjectSelectedState : IEditorState
         editor.SetEditorState(new IdleState());
     }
 
-    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    public IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects()
     {
         foreach (var cp in selectedObject.GetControlPoints())
             yield return new ControlPointMarker(cp, Color.Red, 3.0f);

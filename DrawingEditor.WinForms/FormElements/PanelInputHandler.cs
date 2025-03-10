@@ -67,8 +67,10 @@ public class PanelInputHandler
     {
         if (e.Button == MouseButtons.Left)
             HandleLeftMouseDown(e.Location);
-        else if (e.Button == MouseButtons.Right)
+        else if (e.Button == MouseButtons.Middle)//e.Button == MouseButtons.Right)
             StartDrag(e.Location);
+        else if (e.Button == MouseButtons.Right)//e.Button == MouseButtons.Right)
+            HandleRightMouseDown(e.Location);
     }
 
     private void HandleLeftMouseDown(Point location)
@@ -79,6 +81,17 @@ public class PanelInputHandler
         if (!pointIsInGrid) return;
 
         GraphicsEditorFacade.GetInstance().HandlePoint(CurentDrawingSettings.GetInstance().SelectedColor, CurentDrawingSettings.GetInstance().lineThickness, gridPoint);
+        panel.Invalidate();
+    }
+
+    private void HandleRightMouseDown(Point location)
+    {
+        Point gridPoint = ConvertToGridCoordinates(location);
+
+        bool pointIsInGrid = gridPoint.X >= 0 && gridPoint.X < gridWidth && gridPoint.Y >= 0 && gridPoint.Y < gridHeight;
+        if (!pointIsInGrid) return;
+
+        GraphicsEditorFacade.GetInstance().HandleRightButtonClick(CurentDrawingSettings.GetInstance().SelectedColor, CurentDrawingSettings.GetInstance().lineThickness, gridPoint);
         panel.Invalidate();
     }
 
@@ -99,7 +112,8 @@ public class PanelInputHandler
 
     private void HandleMouseUp(object sender, MouseEventArgs e)
     {
-        if (e.Button == MouseButtons.Right) StopDrag();
+        if (e.Button == MouseButtons.Middle)
+                               StopDrag();
     }
 
     private void StartDrag(Point location)

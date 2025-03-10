@@ -8,10 +8,16 @@ public class CircleCreator : IGraphicObjectCreator
 {
     public int GetRequiredPointsCount() => 2;
 
-    public IDrwaingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
+    public IDrawingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
     {
-        var pointList = points.ToList();
-        if (pointList.Count < GetRequiredPointsCount()) return null;
-        return new Circle(color, lineThickness,  points.ToList());
+        List<Point> Points = points.ToList();
+        if (points.Count() < GetRequiredPointsCount())
+            throw new ArgumentException();
+        Point center = Points[0];
+        var boundaryPoint = Points[1];
+        double radiusSquare = Math.Pow(center.X - boundaryPoint.X, 2) +
+                             Math.Pow(center.Y - boundaryPoint.Y, 2);
+        int radius = (int)Math.Sqrt(radiusSquare);
+        return new Circle(color, lineThickness, center, radius);
     }
 }

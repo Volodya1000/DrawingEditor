@@ -15,7 +15,7 @@ public class WuLineCreator: IGraphicObjectCreator
 
     public int GetRequiredPointsCount() => 2;
 
-    public IDrwaingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
+    public IDrawingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
     {
         var pointList = points.ToList();
         return pointList.Count >= GetRequiredPointsCount() ? new WuLine(color, lineThickness, pointList[0], pointList[1], _lineAlgorithm) : null;

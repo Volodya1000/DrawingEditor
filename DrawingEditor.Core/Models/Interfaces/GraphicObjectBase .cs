@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace DrawingEditor.Core.Models.Interfaces;
 
-public abstract class GraphicObjectBase : IDrwaingGraphicObject
+public abstract class GraphicObjectBase : IDrawingGraphicObject
 {
     public Color LineColor { get; set; }
     public float LineThickness { get; set; }

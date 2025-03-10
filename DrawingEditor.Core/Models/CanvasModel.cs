@@ -13,25 +13,25 @@ public class CanvasModel
 
     public CanvasModel()
     {
-        currentState = new DrawingState(new List<IDrwaingGraphicObject>());
+        currentState = new DrawingState(new List<IDrawingGraphicObject>());
     }
 
-    public void AddObject(IDrwaingGraphicObject obj)
+    public void AddObject(IDrawingGraphicObject obj)
     {
         // Сохраняем текущее состояние перед изменением
-        history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
+        history.SaveState(new DrawingState(new List<IDrawingGraphicObject>(currentState.GraphicObjects)));
         // Применяем изменение: создаём новое состояние с добавленным объектом
-        List<IDrwaingGraphicObject> newObjects = new List<IDrwaingGraphicObject>(currentState.GraphicObjects)
+        List<IDrawingGraphicObject> newObjects = new List<IDrawingGraphicObject>(currentState.GraphicObjects)
         {
             obj
         };
         currentState = new DrawingState(newObjects);
     }
 
-    public void RemoveObject(IDrwaingGraphicObject obj)
+    public void RemoveObject(IDrawingGraphicObject obj)
     {
-        history.SaveState(new DrawingState(new List<IDrwaingGraphicObject>(currentState.GraphicObjects)));
-        List<IDrwaingGraphicObject> newObjects = new List<IDrwaingGraphicObject>(currentState.GraphicObjects);
+        history.SaveState(new DrawingState(new List<IDrawingGraphicObject>(currentState.GraphicObjects)));
+        List<IDrawingGraphicObject> newObjects = new List<IDrawingGraphicObject>(currentState.GraphicObjects);
         newObjects.Remove(obj);
         currentState = new DrawingState(newObjects);
     }
@@ -39,7 +39,7 @@ public class CanvasModel
     public IEnumerable<Point> GetPoints() =>
         currentState.GraphicObjects.SelectMany(x => x.GetPoints());
 
-    public IEnumerable<IDrwaingGraphicObject> GetGraphicObjects() =>
+    public IEnumerable<IDrawingGraphicObject> GetGraphicObjects() =>
         currentState.GraphicObjects;
 
     public bool Undo()

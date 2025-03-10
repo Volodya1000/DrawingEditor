@@ -2,6 +2,7 @@
 using DrawingEditor.Core.Models.Interfaces;
 using DrawingEditor.Core.Algorithms.LineAlgorithms;
 using DrawingEditor.Core.GraphickObjectsCreators;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DrawingEditor.Core;
 
@@ -13,7 +14,7 @@ public class GraphicsEditorFacade
     private IEditorState currentState;
     private IGraphicObjectCreator currentCreator;
     public CanvasModel CanvasModel { get; private set; }
-    private IDrwaingGraphicObject? previewGraphicObject;
+    private IDrawingGraphicObject? previewGraphicObject;
 
     // Радиус для определения попадания в опорную точку
     public int controlPointClickRadius = 5; // Можно настроить
@@ -49,10 +50,16 @@ public class GraphicsEditorFacade
             currentState = new IdleState();
             return;
         }
+
         var selectedData = TrySelectControlPoint(point);
         if (selectedData != null)
         {
             var data = selectedData.Value;
+            if (currentState.GetType() == typeof(ConnectObjectsState))
+            {
+                currentState.HandlePoint(this, color, lineThickness, point);
+                return;
+            }
             if (data.graphicObject is IEditableGraphicObject editable)
             {
                 SetEditorState(new DragControlPointState(editable, data.controlPointIndex, controlPointClickRadius));
@@ -63,11 +70,24 @@ public class GraphicsEditorFacade
         var selectedObject = TrySelectObject(point);
         if (selectedObject != null)
         {
+            if (currentCreator is ConnectObjectsCreator && selectedObject is IConnectable)
+            {
+                if (currentState.GetType() == typeof(ConnectObjectsState))
+                    currentState.HandlePoint(this, color, lineThickness, point);
+                else
+                    SetEditorState(new ConnectObjectsState(selectedObject));
+                return;
+            }
             SetEditorState(new ObjectSelectedState(selectedObject));
             return;
         }
 
         currentState.HandlePoint(this, color, lineThickness, point);
+    }
+
+    public void HandleRightButtonClick(Color color, int lineThickness, Point point)
+    {
+        (currentState as CreationState)?.ShouldFinish(this, color, lineThickness, point);
     }
 
     // Метод обработки перемещения мыши
@@ -94,21 +114,21 @@ public class GraphicsEditorFacade
 
     public bool Redo() => CanvasModel.Redo();
 
-    public IDrwaingGraphicObject? GetPreviewObject() => previewGraphicObject;
+    public IDrawingGraphicObject? GetPreviewObject() => previewGraphicObject;
 
     public void SetEditorState(IEditorState state)
     {
         currentState = state;
     }
 
-    public void SetPreviewGraphicObject(IDrwaingGraphicObject? previewObject)
+    public void SetPreviewGraphicObject(IDrawingGraphicObject? previewObject)
     {
         previewGraphicObject = previewObject;
     }
 
-    public IEnumerable<IDrwaingGraphicObject> GetObjectsForRendering()
+    public IEnumerable<IDrawingGraphicObject> GetObjectsForRendering()
     {
-        IEnumerable<IDrwaingGraphicObject> objects = CanvasModel.GetGraphicObjects();
+        IEnumerable<IDrawingGraphicObject> objects = CanvasModel.GetGraphicObjects();
 
         if (currentState is DragControlPointState dragState && previewGraphicObject != null)
         {
@@ -121,7 +141,7 @@ public class GraphicsEditorFacade
 
 
     // Метод для проверки попадания клика по опорной точке
-    private (IDrwaingGraphicObject graphicObject, int controlPointIndex)? TrySelectControlPoint(Point clickPoint)
+    private (IDrawingGraphicObject graphicObject, int controlPointIndex)? TrySelectControlPoint(Point clickPoint)
     {
         foreach (var obj in CanvasModel.GetGraphicObjects())
         {
@@ -159,7 +179,7 @@ public class GraphicsEditorFacade
     }
 
 
-    public IDrwaingGraphicObject? TrySelectObject(Point clickPoint)
+    public IDrawingGraphicObject? TrySelectObject(Point clickPoint)
     {
         foreach (var obj in CanvasModel.GetGraphicObjects())
         {
@@ -172,6 +192,11 @@ public class GraphicsEditorFacade
             }
         }
         return null;
+    }
+
+    public void RemoveObject(IDrawingGraphicObject drwaingGraphicObject)
+    {
+        CanvasModel.RemoveObject(drwaingGraphicObject);
     }
 }
 

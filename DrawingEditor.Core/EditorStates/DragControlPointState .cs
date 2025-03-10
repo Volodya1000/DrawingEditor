@@ -33,12 +33,10 @@ internal class DragControlPointState : IEditorState
     // По клику фиксируем изменение в оригинальном объекте
     public void HandlePoint(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-        //selectedObject.UpdateControlPoint(controlPointIndex, point);
-        //editor.SetPreviewGraphicObject(null);
         editor.SetEditorState(new IdleState());
     }
 
-    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    public IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects()
     {
         foreach (var cp in selectedObject.GetControlPoints())
             yield return new ControlPointMarker(cp, Color.Red, 3.0f);

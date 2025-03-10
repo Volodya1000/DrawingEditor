@@ -1,4 +1,8 @@
-﻿namespace DrawingEditor.WinForms.ToolBarElements;
+﻿using DrawingEditor.Core.GraphickObjectsCreators;
+using DrawingEditor.Core;
+using DrawingEditor.WinForms.VerticalToolBarElements.Factories;
+
+namespace DrawingEditor.WinForms.ToolBarElements;
 
 internal class ToolbarFactory
 {
@@ -19,5 +23,15 @@ internal class ToolbarFactory
 
         SecondOrderLinesActionsFactory secondOrderLinesActionsFactory = new ();
         secondOrderLinesActionsFactory.AddSubMenu (toolbar);
+
+        ParametricCurvesFactory parametricCurvesFactory = new ();
+        parametricCurvesFactory.AddSubMenu(toolbar);
+
+        toolbar.AddToolButton("Соеденить", 
+                              Color.LightGreen, 
+                              ()=>GraphicsEditorFacade.GetInstance()
+                                                        .SetCreator(new ConnectObjectsCreator())
+                              );
+
     }
 }

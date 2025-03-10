@@ -38,21 +38,21 @@ public class PanelController
 
         DrawObjectsEnumerable(graphics, GraphicsEditorFacade.GetInstance().GetObjectsForRendering());
 
-        IDrwaingGraphicObject previewObject = GraphicsEditorFacade.GetInstance().GetPreviewObject();
+        IDrawingGraphicObject previewObject = GraphicsEditorFacade.GetInstance().GetPreviewObject();
         
         if(previewObject!=null) DrawObject(graphics,previewObject);
 
         graphics.ResetTransform();
     }
 
-    private void DrawObjectsEnumerable(Graphics graphics, IEnumerable<IDrwaingGraphicObject> graphicObjects)
+    private void DrawObjectsEnumerable(Graphics graphics, IEnumerable<IDrawingGraphicObject> graphicObjects)
     {
         foreach (var graphicObject in graphicObjects)
             DrawObject(graphics,graphicObject);
 
     }
 
-    private void DrawObject(Graphics graphics, IDrwaingGraphicObject graphicObject)
+    private void DrawObject(Graphics graphics, IDrawingGraphicObject graphicObject)
     {
         if (graphicObject == null) return;
         foreach ((Point point, double intensity) item in graphicObject.GetPointsWithIntensity())

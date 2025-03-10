@@ -17,17 +17,20 @@ public class Circle: GraphicObjectBase, IEditableGraphicObject
         Radius=radius;
     }
 
-    public Circle(Color lineColor, int lineThickness, IList<Point> points) : base(lineColor, lineThickness)
+    public static IDrawingGraphicObject? Create(Color lineColor, int lineThickness, IList<Point> points) 
     {
-        Center = points[0];
+        if (points.Count < GetRequiredPointsCount())
+            throw new ArgumentException();
+        Point center = points[0];
         var boundaryPoint = points[1];
-        double radiusSquare = Math.Pow(Center.X - boundaryPoint.X, 2) +
-                             Math.Pow(Center.Y - boundaryPoint.Y, 2);
-        Radius = (int)Math.Sqrt(radiusSquare);
+        double radiusSquare = Math.Pow(center.X - boundaryPoint.X, 2) +
+                             Math.Pow(center.Y - boundaryPoint.Y, 2);
+        int radius = (int)Math.Sqrt(radiusSquare);
+        return new Circle(lineColor, lineThickness, center, radius);
     }
 
 
-    public int GetRequiredPointsCount() => 2;
+    public static int GetRequiredPointsCount() => 2;
 
     public override IEnumerable<Point> GetPoints()
     {

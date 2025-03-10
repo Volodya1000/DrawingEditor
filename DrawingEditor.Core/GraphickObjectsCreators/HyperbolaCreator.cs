@@ -7,7 +7,7 @@ public class HyperbolaCreator : IGraphicObjectCreator
 {
     public int GetRequiredPointsCount() => 3;
 
-    public IDrwaingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
+    public IDrawingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
     {
         var pointList = points.ToList();
         //if (pointList.Count == 2)

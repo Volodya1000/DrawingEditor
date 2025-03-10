@@ -54,8 +54,24 @@ public class CreationState : IEditorState
         }
     }
 
-    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    public void ShouldFinish(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-        return Enumerable.Empty<IDrwaingGraphicObject>();
+        if(editor.CurrentCreator is ICreatorWithFinishMethod)
+        {
+            ((ICreatorWithFinishMethod)editor.CurrentCreator).Finish();
+
+            var graphicObject = editor.CurrentCreator.CreateGraphicObject(color, lineThickness, points);
+            if (graphicObject != null)
+            {
+                editor.CanvasModel.AddObject(graphicObject);
+            }
+            // После создания объекта возвращаемся в состояние ожидания
+            editor.SetEditorState(new IdleState());
+        }
+    }
+
+    public IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects()
+    {
+        return Enumerable.Empty<IDrawingGraphicObject>();
     }
 }

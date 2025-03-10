@@ -9,7 +9,7 @@ public class ElipceCreator : IGraphicObjectCreator
 {
     public int GetRequiredPointsCount() => 2;
 
-    public IDrwaingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
+    public IDrawingGraphicObject? CreateGraphicObject(Color color, int lineThickness, IEnumerable<Point> points)
     {
         var pointList = points.ToList();
         if (pointList.Count < GetRequiredPointsCount()) return null;

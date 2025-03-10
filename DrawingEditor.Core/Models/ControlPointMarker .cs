@@ -4,7 +4,7 @@ using DrawingEditor.Core.Models.Interfaces;
 
 namespace DrawingEditor.Core;
 
-public class ControlPointMarker : IDrwaingGraphicObject
+public class ControlPointMarker : IDrawingGraphicObject
 {
     private Point location;
     private Color color;

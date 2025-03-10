@@ -2,7 +2,7 @@
 
 namespace DrawingEditor.Core.Models.Interfaces;
 
-public interface IDrwaingGraphicObject
+public interface IDrawingGraphicObject
 {
     public IEnumerable<Point> GetPoints();
 
@@ -16,6 +16,8 @@ public interface IDrwaingGraphicObject
     //public bool Intersect(Point Point);
 
     //public void Move(Point Point);
+
+
 }
 
 

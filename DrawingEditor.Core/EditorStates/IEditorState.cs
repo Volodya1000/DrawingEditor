@@ -8,6 +8,6 @@ public interface IEditorState
 {
     void HandleMouseMove(GraphicsEditorFacade editor, Color color, int lineThickness, Point point);
     void HandlePoint(GraphicsEditorFacade editor, Color color, int lineThickness, Point point);
-    IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects();
+    IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects();
 }
 

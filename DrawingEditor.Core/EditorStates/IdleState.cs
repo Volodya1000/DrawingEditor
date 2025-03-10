@@ -20,9 +20,9 @@ public class IdleState : IEditorState
         editor.SetEditorState(creationState);
     }
 
-    public IEnumerable<IDrwaingGraphicObject> GetAdditionalRenderingObjects()
+    public IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects()
     {
-        return Enumerable.Empty<IDrwaingGraphicObject>();
+        return Enumerable.Empty<IDrawingGraphicObject>();
     }
 }
 
