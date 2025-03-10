@@ -5,113 +5,168 @@ namespace DrawingEditor.Core;
 
 internal class ConnectObjectsState : IEditorState
 {
-    private readonly IDrawingGraphicObject firstSelectedObject;
+    private readonly IDrawingGraphicObject _firstSelectedObject;
+    private IDrawingGraphicObject? _secondSelectedObject;
 
-    private IDrawingGraphicObject? secondSelectedObject;
+    // true - выбрана первая точка первого объекта , false - последняя, null - никакая не выбрана
+    private bool? _isFirstPointSelectedInFirstObject;
 
-    bool? firstPointOfFirstObject;
-    bool? secondPointOfFirstObject;
+    // true - первая точка второго объекта, false - последняя, null - никакая не выбрана
+    private bool? _isFirstPointSelectedInSecondObject;
+
+    // Константы для размеров маркеров
+    private const float ActiveControlPointSize = 4.0f;
+    private const float InactiveControlPointSize = 3.0f;
+
+    private Color ActiveColor = Color.Green;
+    private Color InactiveColor = Color.Red;
 
     public ConnectObjectsState(IDrawingGraphicObject selectedObject)
     {
-        this.firstSelectedObject = selectedObject;
+        _firstSelectedObject = selectedObject;
     }
 
     public void HandleMouseMove(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-
     }
 
     public void HandlePoint(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-        if (firstPointOfFirstObject == null)
+        if (!_isFirstPointSelectedInFirstObject.HasValue)
         {
-                var controlPoints = firstSelectedObject.GetControlPoints().ToList();
-                for (int i = 0; i < controlPoints.Count; i++)
-                {
-                    if (editor.Distance(point, controlPoints[i]) <= editor.controlPointClickRadius)
-                    {
-                        if (i == 0)//первая точка объекта
-                            firstPointOfFirstObject = true;
-                        else if (i == controlPoints.Count - 1)//Последняя точка объекта
-                            firstPointOfFirstObject = false;
-                        return;
-                    }
-                }
-                return; // пользователь нажал куда то не туда и никак на это не реагируем
+            HandleFirstPointSelection(editor, point);
         }
-        else if(secondSelectedObject == null)
+        else if (_secondSelectedObject == null)
         {
-            // Проверяем клик на другой объект
-            var newSelected = editor.TrySelectObject(point);
-            if (newSelected != null)
-            {
-                if(newSelected != firstSelectedObject)
-                    secondSelectedObject = newSelected;
-                return;
-            }
+            HandleSecondObjectSelection(editor, point);
         }
-        else if(secondPointOfFirstObject==null)
+        else if (!_isFirstPointSelectedInSecondObject.HasValue)
         {
-            var controlPoints = secondSelectedObject.GetControlPoints().ToList();
-            for (int i = 0; i < controlPoints.Count; i++)
-            {
-                if (editor.Distance(point, controlPoints[i]) <= editor.controlPointClickRadius)
-                {
-                    if (i == 0)//первая точка объекта
-                        secondPointOfFirstObject = true;
-                    else if (i == controlPoints.Count - 1)//Последняя точка объекта
-                        secondPointOfFirstObject = false;
-                    else return; // выбрана не крайняя точка второго объекта
-
-                    // объединяем объекты
-                    ((IConnectable)firstSelectedObject).UpdatePoints(GetConcatedPoints());
-
-                    //удаляем второй объект так как его точки переходят в первый объекты
-                    editor.RemoveObject(secondSelectedObject);
-
-                    editor.SetEditorState(new IdleState());
-                    return;
-                }
-            }
+            HandleSecondPointSelection(editor, point);
         }
     }
 
-    private IEnumerable<Point> GetConcatedPoints()
+    private void HandleFirstPointSelection(GraphicsEditorFacade editor, Point point)
     {
-        var first = firstSelectedObject.GetControlPoints();
-        var second = secondSelectedObject.GetControlPoints();
+        var controlPoints = _firstSelectedObject.GetControlPoints().ToList();
 
-        if (firstPointOfFirstObject == true)
+        for (int i = 0; i < controlPoints.Count; i++)
+        {
+            if (editor.Distance(point, controlPoints[i]) > editor.controlPointClickRadius)
+                continue;
+
+            // Определяем тип выбранной точки
+            _isFirstPointSelectedInFirstObject = i switch
+            {
+                0 => true,                                     // Первая точка
+                _ when i == controlPoints.Count - 1 => false,  // Последняя точка
+                _ => null
+            };
+            return;
+        }
+    }
+
+    private void HandleSecondObjectSelection(GraphicsEditorFacade editor, Point point)
+    {
+        var newSelected = editor.TrySelectObject(point);
+        if (newSelected == null || 
+            newSelected == _firstSelectedObject ||
+            _firstSelectedObject.GetType()!= newSelected?.GetType())
+            return;
+
+        _secondSelectedObject = newSelected;
+    }
+
+    private void HandleSecondPointSelection(GraphicsEditorFacade editor, Point point)
+    {
+        var controlPoints = _secondSelectedObject?.GetControlPoints().ToList();
+        if (controlPoints == null)
+            return;
+
+        for (int i = 0; i < controlPoints.Count; i++)
+        {
+            if (editor.Distance(point, controlPoints[i]) > editor.controlPointClickRadius)
+                continue;
+
+            if (i == 0)//первая точка объекта
+                _isFirstPointSelectedInSecondObject = true;
+            else if (i == controlPoints.Count - 1)//Последняя точка объекта
+                _isFirstPointSelectedInSecondObject = false;
+            else return; // выбрана не крайняя точка второго объекта
+
+            ConnectObjects(editor);
+            editor.SetEditorState(new IdleState());
+        }
+    }
+
+    private void ConnectObjects(GraphicsEditorFacade editor)
+    {
+        if (_secondSelectedObject == null ||
+            !(_firstSelectedObject is IConnectable connectable))
+            return;
+
+        var connectedPoints = GetConnectedPoints();
+        connectable.UpdatePoints(connectedPoints);
+
+        //удаляем второй объект так как его точки переходят в первый объекты
+        editor.RemoveObject(_secondSelectedObject);
+    }
+
+    private IEnumerable<Point> GetConnectedPoints()
+    {
+        var first = _firstSelectedObject.GetControlPoints();
+        var second = _secondSelectedObject?.GetControlPoints();
+        
+
+        if (_isFirstPointSelectedInFirstObject == true)
             first = first.Reverse();
 
-        if (secondPointOfFirstObject == false)
-            second = second.Reverse();
+        if (_isFirstPointSelectedInSecondObject == false)
+            second = second?.Reverse();
 
         return first.Concat(second);
     }
-
 
     public IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects()
     {
         List<IDrawingGraphicObject> result = new List<IDrawingGraphicObject>();
 
-        // Обрабатываем firstSelectedObject
-        var firstControlPoints = firstSelectedObject.GetControlPoints().ToList(); // Преобразуем в список для получения длины
-        for (int i = 0; i < firstControlPoints.Count; i++)
+        var firstControlPoints = _firstSelectedObject.GetControlPoints().ToList(); // Преобразуем в список для получения длины
+        
+        var firstObjectFirstPoint = firstControlPoints[0];
+
+        var firsObjectLastPoint = firstControlPoints[firstControlPoints.Count - 1];
+
+        if (_isFirstPointSelectedInFirstObject.HasValue)
         {
-            var cp = firstControlPoints[i];
-            if (firstPointOfFirstObject.HasValue && 
-                ((firstPointOfFirstObject.Value && i == 0) || 
-                (!firstPointOfFirstObject.Value && i == firstControlPoints.Count - 1)))
-                result.Add(new ControlPointMarker(cp, Color.Green, 4.0f));
+            if (_isFirstPointSelectedInFirstObject.Value)
+            {
+                result.Add(new ControlPointMarker(firstObjectFirstPoint, ActiveColor, ActiveControlPointSize));
+                result.Add(new ControlPointMarker(firsObjectLastPoint, InactiveColor, InactiveControlPointSize));
+            }
             else
-                result.Add(new ControlPointMarker(cp, Color.Red, 3.0f));
+            {
+                result.Add(new ControlPointMarker(firstObjectFirstPoint,InactiveColor, InactiveControlPointSize));
+                result.Add(new ControlPointMarker(firsObjectLastPoint, ActiveColor, ActiveControlPointSize));
+            }
+        }
+        else
+        {
+            result.Add(new ControlPointMarker(firstObjectFirstPoint, Color.Red, InactiveControlPointSize));
+            result.Add(new ControlPointMarker(firsObjectLastPoint, Color.Red, InactiveControlPointSize));
         }
 
-        if (secondSelectedObject != null)
-            foreach (var cp in secondSelectedObject.GetControlPoints())
-                result.Add(new ControlPointMarker(cp, Color.Red, 3.0f));
+        if (_secondSelectedObject != null)
+        {
+            var secondControlPoints = _secondSelectedObject.GetControlPoints().ToList(); // Преобразуем в список для получения длины
+
+            var secondObjectFirstPoint = secondControlPoints[0];
+
+            var secondObjectLastPoint = secondControlPoints[secondControlPoints.Count - 1];
+
+            result.Add(new ControlPointMarker(secondObjectFirstPoint, InactiveColor, InactiveControlPointSize));
+            result.Add(new ControlPointMarker(secondObjectLastPoint, InactiveColor, InactiveControlPointSize));
+        } 
 
         return result;
     }
