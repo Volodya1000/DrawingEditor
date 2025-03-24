@@ -36,10 +36,6 @@ public class HermiteForm : GraphicObjectBase, IEditableGraphicObject, IConnectab
         // Последний сегмент с периодизацией
         for (double t = 0; t <= 1; t += step)
             yield return CalculatePoint(N - 2, N - 1, 0, t);
-
-        // Сегмент между последней и первой точкой
-        //for (double t = 0; t <= 1; t += step)
-        //    yield return CalculatePoint(N - 1, 0, 1, t);
     }
 
     private Point CalculatePoint(int p0, int p1, int p2, double t)
@@ -81,6 +77,4 @@ public class HermiteForm : GraphicObjectBase, IEditableGraphicObject, IConnectab
     {
         Points = points.ToList();
     }
-
-
 }

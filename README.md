@@ -33,8 +33,30 @@
 ![Элипс](Screenshots/Elipce.PNG)
 
 ### Рисование парабол
-![Элипс](Screenshots/Parabola.PNG)
+![Парабола](Screenshots/Parabola.PNG)
 
 
 ### Рисование гипербол
-![Элипс](Screenshots/Hyperbola.PNG)
+![Гипербола](Screenshots/Hyperbola.PNG)
+
+
+## 🎨 Инструменты для Создания Кривых второго порядка 
+
+### Метод интерполяции Эрмита
+Примеры построения кривых:
+![Гипербола](Screenshots/Hermite/Hermite.PNG)
+
+### Пошаговая демонстрация соединения двух кривых
+![](Screenshots/Hermite/HermiteConnect1.PNG)
+![](Screenshots/Hermite/HermiteConnect2.PNG)
+![](Screenshots/Hermite/HermiteConnect3.PNG)
+![](Screenshots/Hermite/HermiteConnect4.PNG)
+![](Screenshots/Hermite/HermiteConnect5.PNG)
+
+### Метод Безбе
+![](Screenshots/Bezie.PNG)
+
+
+### B-Сплайн
+![](Screenshots/BSpline.PNG)
+

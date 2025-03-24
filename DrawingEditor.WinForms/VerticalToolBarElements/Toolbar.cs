@@ -12,7 +12,7 @@ internal class Toolbar : FlowLayoutPanel
     private void InitializeComponent()
     {
         this.Dock = DockStyle.Left;
-        this.Width = 100;
+        this.Width = 120;
         this.BackColor = Color.Gray;
         this.FlowDirection = FlowDirection.TopDown;
         this.WrapContents = false;

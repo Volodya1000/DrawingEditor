@@ -56,18 +56,11 @@ public class CreationState : IEditorState
 
     public void ShouldFinish(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
-        if(editor.CurrentCreator is ICreatorWithFinishMethod)
-        {
-            ((ICreatorWithFinishMethod)editor.CurrentCreator).Finish();
-
-            var graphicObject = editor.CurrentCreator.CreateGraphicObject(color, lineThickness, points);
-            if (graphicObject != null)
-            {
-                editor.CanvasModel.AddObject(graphicObject);
-            }
-            // После создания объекта возвращаемся в состояние ожидания
-            editor.SetEditorState(new IdleState());
-        }
+        var graphicObject = editor.CurrentCreator.CreateGraphicObject(color, lineThickness, points);
+        if (graphicObject != null)
+            editor.CanvasModel.AddObject(graphicObject);
+        // После создания объекта возвращаемся в состояние ожидания
+        editor.SetEditorState(new IdleState());
     }
 
     public IEnumerable<IDrawingGraphicObject> GetAdditionalRenderingObjects()

@@ -17,14 +17,27 @@ internal class ParametricCurvesFactory
     {
         return new Dictionary<string, Action>
                     {
-                        { "Эрмит", () => SetHermite() }
+                        { "Эрмит", () => SetHermite() },
+                        { "Безье", () => SetBezie() },
+                        { "B-Сплайн",()=>SetSpline()}
                     };
     }
 
     private void SetHermite()
     {
-
         HermiteCreator hermiteCreator = new();
         GraphicsEditorFacade.GetInstance().SetCreator(hermiteCreator);
+    }
+
+    private void SetBezie()
+    {
+        BezieCreator bezieCreator = new();
+        GraphicsEditorFacade.GetInstance().SetCreator(bezieCreator);
+    }
+
+    private void SetSpline()
+    {
+        BSplineCreator splineCreator = new();
+        GraphicsEditorFacade.GetInstance().SetCreator(splineCreator);
     }
 }
