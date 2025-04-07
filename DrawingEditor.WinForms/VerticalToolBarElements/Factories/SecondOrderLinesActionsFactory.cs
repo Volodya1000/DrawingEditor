@@ -45,6 +45,4 @@ internal class SecondOrderLinesActionsFactory
         HyperbolaCreator hyperbolaCreator = new();
         GraphicsEditorFacade.GetInstance().SetCreator(hyperbolaCreator);
     }
-
-
 }

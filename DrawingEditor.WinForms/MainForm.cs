@@ -17,6 +17,8 @@ public partial class MainForm : Form
         InitializeDrawingPanel();
         InitializeUI();
         panelController = new PanelController(bufferedPanel, 500, 500, 7);
+        // ¬ключаем предварительное прослушивание клавиш формы
+        KeyPreview = true;
     }
 
     private void InitializeUI()

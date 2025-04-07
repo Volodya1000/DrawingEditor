@@ -12,6 +12,8 @@ internal class ObjectSelectedState : IEditorState
         this.selectedObject = selectedObject;
     }
 
+    public IDrawingGraphicObject SelectedObject => selectedObject;
+
     public void HandleMouseMove(GraphicsEditorFacade editor, Color color, int lineThickness, Point point)
     {
         editor.SetPreviewGraphicObject(null);

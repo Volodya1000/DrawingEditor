@@ -33,5 +33,9 @@ internal class ToolbarFactory
                                                         .SetCreator(new ConnectObjectsCreator())
                               );
 
+        _3dActionsFactory _3dFactory = new();
+        _3dFactory.AddSubMenu(toolbar);
+
+
     }
 }

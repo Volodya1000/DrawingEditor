@@ -67,9 +67,9 @@ public class PanelInputHandler
     {
         if (e.Button == MouseButtons.Left)
             HandleLeftMouseDown(e.Location);
-        else if (e.Button == MouseButtons.Middle)//e.Button == MouseButtons.Right)
+        else if (e.Button == MouseButtons.Middle)
             StartDrag(e.Location);
-        else if (e.Button == MouseButtons.Right)//e.Button == MouseButtons.Right)
+        else if (e.Button == MouseButtons.Right)
             HandleRightMouseDown(e.Location);
     }
 
